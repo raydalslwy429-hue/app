@@ -1,0 +1,337 @@
+
+  <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head>
+    <meta charset="utf-8">
+    <title>دليل المستخدم الشامل - منظومة المراسيم</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', 'Traditional Arabic', 'Arial', sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 40px;
+        line-height: 1.7;
+        color: #1B1111;
+        background-color: #FAF7F4;
+      }
+      .container {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid #D49A3D;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      }
+      .header-box {
+        text-align: center;
+        background: linear-gradient(135deg, #682722, #471815);
+        color: #ffffff;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        border: 2px solid #D49A3D;
+      }
+      .header-box h1 {
+        color: #FFC217 !important;
+        margin: 0;
+        font-size: 24pt;
+        border: none !important;
+      }
+      .header-box p {
+        color: #EFE8E1;
+        margin: 8px 0 0 0;
+        font-size: 13pt;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 20px 0;
+        font-size: 10.5pt;
+      }
+      th {
+        background-color: #682722;
+        color: #FFC217;
+        padding: 10px 12px;
+        border: 1px solid #471815;
+        text-align: center;
+        font-weight: bold;
+      }
+      td {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        background-color: #ffffff;
+      }
+      tr:nth-child(even) td {
+        background-color: #FAF7F4;
+      }
+      .badge-gold {
+        background-color: #D49A3D;
+        color: #1B1111;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .badge-burgundy {
+        background-color: #682722;
+        color: #ffffff;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .footer-note {
+        margin-top: 40px;
+        padding-top: 15px;
+        border-top: 2px solid #D49A3D;
+        text-align: center;
+        font-size: 10pt;
+        color: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-box">
+        <h1>مطعم المراسيم | Al-Marasim Restaurant</h1>
+        <p>الدليل الإجرائي والتشغيلي الشامل لمنظومة حوكمة الجودة والبلاغات التصحيحية (CAPA V2)</p>
+      </div>
+      <div>
+        <h1 style="color: #682722; border-bottom: 3px solid #D49A3D; padding-bottom: 8px; font-size: 22pt; margin-top: 24pt;">الدليل الإجرائي والتشغيلي الشامل لمستخدمي منظومة المراسيم (CAPA V2)</h1>
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">مطعم المراسيم | Al-Marasim Restaurant</h3>
+<strong>من مدير النظام العام إلى المفتش والمنفذ الميداني</strong>
+
+---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">📌 الفهرس العام للدليل</h2>
+1. [مقدمة عن المنظومة وفلسفة العمل](#1-مقدمة-عن-منظومة-حوكمة-الجودة)
+2. [دليل مدير النظام العام (Super Admin / General Admin)](#2-دليل-مدير-النظام-العام-super-admin)
+3. [دليل مدير الإدارة / المشرف الإداري (Department Admin)](#3-دليل-مدير-الإدارة-department-admin)
+4. [دليل مفتش الجودة والراصد الميداني (Quality Inspector)](#4-دليل-مفتش-الجودة-quality-inspector)
+5. [دليل المنفذ الميداني (Field Agent / Executor)](#5-دليل-المنفذ-الميداني-field-agent)
+6. [جدول المقارنة السريع بين الأدوار والوظائف](#6-جدول-المقارنة-السريع-بين-الأدوار)
+
+---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">1. مقدمة عن منظومة حوكمة الجودة</h2>
+
+منظومة <strong>المراسيم</strong> هي بيئة عمل سحابية وميدانية متقدمة لإدارة الجودة الشاملة وتطبيق المعايير القياسية للإجراءات التصحيحية والوقائية (<strong>CAPA - Corrective and Preventive Actions</strong>).
+
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">المبادئ التشغيلية الحاكمة:</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>الفصل الصارم للمسؤوليات:</strong> المفتش يرصد ولا يسند، والإداري يفرز ويسند ويعتمد، والمنفذ يعالج في الميدان ويوثق.</li>
+<li style="margin-bottom: 4px;"><strong>الحماية وسرية الراصد:</strong> حجب هوية المفتش وملاحظاته الحساسة برمجياً عن المنفذ الميداني منعاً لأي احتكاك وظيفي.</li>
+<li style="margin-bottom: 4px;"><strong>المرونة وتعدد المنفذين:</strong> إمكانية إسناد البلاغ لعدة منفذين في آن واحد مع متابعة حالة كل منفذ بشكل مستقل.</li>
+<li style="margin-bottom: 4px;"><strong>التغذية الراجعة الإلزامية:</strong> لا يمكن إغلاق أي بلاغ دون تسجيل توجيه إداري دائم يظهر للمنفذين كمرجع يمنع تكرار المخالفة.</li>
+<li style="margin-bottom: 4px;"><strong>العمل دون اتصال (Offline-First):</strong> استمرار أعمال التفتيش في غرف التبريد والمناطق المعزولة عن الشبكة مع المزامنة التلقائية فور عودة الاتصال.</li>
+
+</ul>---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">2. دليل مدير النظام العام (Super Admin)</h2>
+
+مدير النظام هو المسؤول عن ضبط السياسات العامة، وتكوين الهيكل الإداري، والتحكم بكافة صلاحيات المنظومة.
+
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">🔑 تسجيل الدخول والصلاحيات:</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>بيانات الدخول:</strong> رقم المستخدم الوظيفي (مثال: <code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">101</code>) + كلمة المرور الخاصة.</li>
+<li style="margin-bottom: 4px;"><strong>نطاق الرؤية:</strong> شامل لكافة الإدارات، البلاغات، السجلات، والتقارير.</li>
+
+</ul><h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">📋 المهام والوظائف الأساسية:</h3>
+
+<h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">أ. التهيئة وإعدادات المنظومة (خاصة بمدير النظام فقط):</h4>
+1. <strong>إدارة الإدارات المركزية:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">الدخول إلى تبويب <strong>"الإدارات والوحدات"</strong>.</li>
+<li style="margin-bottom: 4px;">إضافة إدارة جديدة (اسم الإدارة، كود الإدارة).</li>
+<li style="margin-bottom: 4px;">تعديل بيانات الإدارات القائمة أو تعطيلها.</li>
+</ul>2. <strong>إدارة الأقسام والمواقع:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">الدخول إلى تبويب <strong>"الأقسام والمواقع"</strong>.</li>
+<li style="margin-bottom: 4px;">إضافة قسم جديد وربطه بالإدارة التابعة (مثل: صالة العائلات، مطبخ الساخن، مستودع الجاف).</li>
+<li style="margin-bottom: 4px;">زر خاص بفلترة الأقسام لعرض أقسام إدارة معينة فقط.</li>
+</ul>3. <strong>تصنيفات حالات عدم المطابقة:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">الدخول إلى تبويب <strong>"حالات عدم المطابقة"</strong>.</li>
+<li style="margin-bottom: 4px;">تسجيل المخالفات المعيارية وتحديد درجة الخطورة (عادي، متوسط، عالي ⚠️).</li>
+<li style="margin-bottom: 4px;">ربط المخالفة بإدارة محددة أو اختيار "جميع الإدارات".</li>
+</ul>4. <strong>محرك النماذج والاستمارات الذكية (Dynamic Forms):</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">تصميم وتعديل نماذج التفتيش الرقمية.</li>
+<li style="margin-bottom: 4px;">تحديد أسئلة الفحص الميداني، الحقول الإلزامية، وقوائم الاختيار.</li>
+
+</ul><h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">ب. كادر العمل والمستخدمين وتوزيع الصلاحيات:</h4>
+1. <strong>إنشاء مستخدم جديد:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يضغط مدير النظام على <strong>"إضافة موظف جديد"</strong>.</li>
+<li style="margin-bottom: 4px;"><strong>الرقم الوظيفي:</strong> يُولّد النظام رقماً تسلسلياً تلقائياً وفريداً لكل موظف (مثل: <code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">101</code>, <code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">102</code>, <code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">103</code>...).</li>
+<li style="margin-bottom: 4px;">إدخال الاسم الرباعي، المسمى الوظيفي، كلمة المرور.</li>
+<li style="margin-bottom: 4px;">تحديد الإدارة التابع لها الموظف.</li>
+</ul>2. <strong>تحديد الدور والصلاحيات:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>مدير نظام (<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">super_admin</code>):</strong> تحكم وصلاحيات كاملة شاملة.</li>
+<li style="margin-bottom: 4px;"><strong>إداري إدارة (<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">admin</code>):</strong> محصور في إدارته فقط (فرز، إسناد، مراجعة، إغلاق).</li>
+<li style="margin-bottom: 4px;"><strong>مفتش جودة (<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">inspector</code>):</strong> رصد ميداني وتعبئة النماذج.</li>
+<li style="margin-bottom: 4px;"><strong>منفذ ميداني (<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">field_agent</code>):</strong> استلام وتنفيذ المعالجات الميدانية.</li>
+<li style="margin-bottom: 4px;">تفعيل أو تعطيل صلاحية تصدير بيانات الإكسل المباشر (<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">Excel Sync</code>).</li>
+
+</ul><h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">ج. الرقابة والتقارير والحساب:</h4>
+1. <strong>سجل التدقيق الشامل (Audit Trail):</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">سجل رقمي غير قابل للتعديل يوثق كل حركة بالاسم، التاريخ، الدقيقة، والحالة السابقة والجديدة.</li>
+</ul>2. <strong>التقارير المتقدمة وطباعة PDF:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">استخراج تقارير إحصائية دورية ورسوم بيانية بمعدلات الإنجاز والإغلاق ومؤشرات الأداء.</li>
+<li style="margin-bottom: 4px;">طباعة تقارير رسمية بتنسيق الهوية البصرية لمطعم المراسيم.</li>
+</ul>3. <strong>تصفير قاعدة البيانات المركزية:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">ميزة أمنية محصورة بمدير النظام العام، تتيح تفريغ البلاغات وسجلات الاختبار لبدء دورة تشغيل جديدة.</li>
+</ul>4. <strong>تغيير الرمز السري (PIN / Password):</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">واجهة أمنية خاصة بتحديث كلمات المرور لكوادر الإدارة العليا.</li>
+
+</ul>---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">3. دليل مدير الإدارة / المشرف الإداري (Department Admin)</h2>
+
+مدير الإدارة هو صمام الأمان التشغيلي المسؤول عن إدارة بلاغات قسمه، وتكليف المنفذين، واعتماد معالجاتهم، والإغلاق النهائي.
+
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">🔑 تسجيل الدخول والصلاحيات:</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>بيانات الدخول:</strong> رقم المستخدم الوظيفي الخاص بإداري الإدارة + كلمة المرور.</li>
+<li style="margin-bottom: 4px;"><strong>نطاق الرؤية:</strong> <strong>محصور بالكامل في إدارته فقط</strong>. لا تظهر له قوائم الإعدادات المركزية ولا كادر المستخدمين العام ولا بلاغات الإدارات الأخرى.</li>
+
+</ul><h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">📋 المسار الإجرائي اليومي لمدير الإدارة:</h3>
+
+``<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">mermaid
+flowchart TD
+    A["1. استلام البلاغ في الحالات المفتوحة"] --> B["اختيار منفذ أو أكثر من الإدارة"]
+    B --> C["كتابة التوجيه وتأكيد الإسناد"]
+    C --> D["متابعة التنفيذ في 'قيد التنفيذ'"]
+    D --> E["استلام الرد في 'المراجعة والاعتماد'"]
+    E --> F{"قرار مدير الإدارة"}
+    F -->|القرار 1| G["اعتماد الرد<br>(تصبح مقبولة للمنفذ وتبقى معلقة للبقية)"]
+    F -->|القرار 2| H["استكمال المهمة<br>(اختيار المنفذين + ملاحظات إلزامية + رفع الجولة)"]
+    F -->|القرار 3| I["إغلاق الحالة نهائياً<br>(ملاحظات إدارية إلزامية كتغذية راجعة)"]
+</code>`<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">
+
+<h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">الخطوة 1: فرز وإسناد الحالات المفتوحة (</code>الحالات المفتوحة<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">):</h4>
+1. يفتح تبويب <strong>"الحالات المفتوحة (بانتظار الفرز)"</strong>.
+2. تظهر بطاقة البلاغ موضحاً بها: رقم البلاغ، القسم والموقع، درجة الخطورة، ووصف المخالفة.
+3. <strong>اختيار المنفذين الميدانيين:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">تظهر للمدير قائمة <strong>منفذي إدارته بالكامل</strong> في مقدمة البطاقة.</li>
+<li style="margin-bottom: 4px;">يمكنه استخدام زر <strong>"تحديد جميع منفذي الإدارة"</strong> بنقرة واحدة، أو اختيار منفذ أو أكثر يدوياً عبر مربعات الاختيار.</li>
+<li style="margin-bottom: 4px;">يوضح النظام عدد المنفذين المحددين لحظياً (مثال: </code>تم تحديد: 3 منفذين<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">).</li>
+</ul>4. <strong>التوجيه الإداري:</strong> كتابة التعليمات المطلوبة في حقل الملاحظات.
+5. الضغط على <strong>"تأكيد الإسناد والتكليف الميداني"</strong> ليتحول البلاغ فوراً للمنفذين.
+
+<h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">الخطوة 2: متابعة الحالات قيد التنفيذ (</code>الحالات قيد التنفيذ<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">):</h4>
+1. يفتح تبويب <strong>"الحالات قيد التنفيذ الميداني"</strong>.
+2. يرى المدير ملخصاً حياً لحالة كل منفذ مكلف، مثل:  
+   </code>عبد الحميد الخليدي (completed), الشيف حميد (pending)<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">
+3. تظل الحالة ظاهرة هنا حتى يتم إغلاقها بالكامل.
+
+<h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">الخطوة 3: مراجعة واعتماد ردود المنفذين (</code>المراجعة والاعتماد<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">):</h4>
+عندما يرفع أحد المنفذين تقرير معالجته، يظهر فوراً في تبويب <strong>"المراجعة والاعتماد"</strong>.  
+يمتلك المدير <strong>3 خيارات معتمدة ومحددة</strong>:
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>الخيار الأول: "اعتماد الرد" (Approve Response):</strong></li>
+<li style="margin-bottom: 4px;">يُستخدم عندما يكون رد المنفذ صحيحاً ومستوفياً.</li>
+<li style="margin-bottom: 4px;">بالضغط على <strong>"اعتماد الرد"</strong>:</li>
+<li style="margin-bottom: 4px;">تتحول حالة التكليف لهذا المنفذ فقط إلى <strong>"مقبولة"</strong>.</li>
+<li style="margin-bottom: 4px;"><strong>لا تختفي الحالة من بقية المنفذين المكلفين</strong>، بل تظل لديهم <strong>"معلقة"</strong> لإتاحة الفرصة لهم بالرد والعمل حتى يتم إغلاق البلاغ نهائياً.</li>
+<li style="margin-bottom: 4px;"><strong>الخيار الثاني: "استكمال المهمة" (Continue / Reassign Task):</strong></li>
+<li style="margin-bottom: 4px;">يُستخدم في حال كان الإجراء غير مكتمل أو يتطلب فريق عمل إضافي.</li>
+<li style="margin-bottom: 4px;">بالضغط على <strong>"استكمال المهمة"</strong> تفتح نافذة مخصصة:</li>
+    </ul>1. تظهر قائمة بأسماء منفذي الإدارة لاختيار <strong>واحد أو أكثر</strong> أو تحديد الكل.
+    2. حقل إلزامي: <strong>"توجيهات وملاحظات استكمال المهمة للمنفذين"</strong> (الزر لا يعمل إذا كان الحقل فارغاً).
+    3. الضغط على <strong>"تأكيد إسناد استكمال المهمة"</strong> -> تُرفع جولة البلاغ تلقائياً إلى (Round + 1) وتظهر باللون الأحمر للمنفذين في تبويب "معادة للاستكمال".
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>الخيار الثالث: "إغلاق الحالة نهائياً" (Final Case Closure):</strong></li>
+<li style="margin-bottom: 4px;">يُستخدم عند انتهاء المعالجة الميدانية ورغبة الإدارة في إغلاق البلاغ بالكامل.</li>
+<li style="margin-bottom: 4px;">بالضغط على <strong>"إغلاق الحالة نهائياً"</strong> تفتح نافذة الإغلاق:</li>
+    </ul>1. حقل إلزامي: <strong>"الملاحظات والتوجيهات الإدارية الدائمة (تغذية راجعة)"</strong>.
+    2. يُلزم النظام الإداري بكتابة التوجيه الإداري لمنع تكرار المخالفة.
+    3. بالضغط على <strong>"تأكيد الإغلاق النهائي"</strong> -> تختفي الحالة من القوائم النشطة لجميع المنفذين دفعة واحدة وتنتقل للأرشيف مع توثيق التغذية الراجعة.
+
+---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">4. دليل مفتش الجودة والراصد الميداني (Quality Inspector)</h2>
+
+المفتش هو عين المنظومة في الميدان لرصد وتوثيق حالات عدم المطابقة وفق أعلى المعايير.
+
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">🔑 تسجيل الدخول والصلاحيات:</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>بيانات الدخول:</strong> رقم المستخدم الوظيفي الخاص بالمفتش + كلمة المرور.</li>
+<li style="margin-bottom: 4px;"><strong>نطاق الرؤية:</strong> يرى البلاغات التي رصدها وسجلها بنفسه فقط لضمان التركيز والخصوصية.</li>
+
+</ul><h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">📋 خطوات رصد وتوثيق المخالفات:</h3>
+1. <strong>فتح واجهة التفتيش (</code>/inspector<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">):</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">الضغط على <strong>"رصد بلاغ جديد"</strong>.</li>
+</ul>2. <strong>تعبئة تفاصيل الحالة:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>الإدارة المستهدفة:</strong> اختيار الإدارة المعنية بالمخالفة (مثال: إدارة الإنتاج والجودة الغذائية).</li>
+<li style="margin-bottom: 4px;"><strong>القسم والموقع:</strong> اختيار الموقع الدقيق (مثل: قسم التجهيز، صالة الضيوف، خط الطهي).</li>
+<li style="margin-bottom: 4px;"><strong>حالة عدم المطابقة:</strong> اختيار المخالفة من القائمة المعتمدة مسبقاً.</li>
+<li style="margin-bottom: 4px;"><strong>درجة الخطورة:</strong> تحديد الخطورة (عادي، متوسط ⚡، عالي الخطورة ⚠️).</li>
+<li style="margin-bottom: 4px;"><strong>الوصف الميداني:</strong> كتابة شرح تفصيلي وواضح للواقعة المرصودة.</li>
+<li style="margin-bottom: 4px;"><strong>السبب الجذري المتوقع:</strong> تدوين السبب المرجح (مثل: إهمال العامل، عطل مفاجئ بالمعدة، نقص مواد التعقيم).</li>
+<li style="margin-bottom: 4px;"><strong>إرفاق الصور:</strong> التقاط صورة مباشرة للمخالفة أو رفعها من المعرض.</li>
+</ul>3. <strong>حفظ وإرسال البلاغ:</strong>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">بالضغط على <strong>"تسجيل واعتماد البلاغ"</strong>، يُصدر النظام رقماً تسلسلياً فريداً للبلاغ (مثال: </code>#1024<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">).</li>
+
+</ul><h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">📶 ميزة العمل دون اتصال بالإنترنت (Offline Mode):</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">في حال تواجد المفتش في مناطق العزل أو غرف التجميد التي لا تصلها الشبكة:</li>
+<li style="margin-bottom: 4px;">يستمر المفتش في كتابة البلاغات والتقاط الصور بشكل طبيعي 100%.</li>
+<li style="margin-bottom: 4px;">تُحفظ البلاغات تلقائياً في <strong>طابور الحفظ المحلي للجهاز (Offline Queue)</strong>.</li>
+<li style="margin-bottom: 4px;">بمجرد عودة الاتصال بالإنترنت، يرسل النظام كافة البلاغات إلى الخادم السحابي ويحدث أرقامها تلقائياً دون أي تدخل يدوي ودون فقدان أي معلومة.</li>
+
+</ul>---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">5. دليل المنفذ الميداني (Field Agent / Executor)</h2>
+
+المنفذ الميداني (شيف، فني صيانة، مسؤول نظافة، مشرف تشغيل) هو المسؤول عن تصحيح الأخطاء وتنفيذ التوجيهات في الموقع.
+
+<h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">🔑 تسجيل الدخول وميثاق الخصوصية:</h3>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;"><strong>بيانات الدخول:</strong> رقم المستخدم الوظيفي للمنفذ + كلمة المرور.</li>
+<li style="margin-bottom: 4px;"><strong>أمان وسرية التفتيش:</strong> محجوب عنه تماماً اسم المفتش أو أي ملاحظات سرية للمفتش، ولا يرى سوى التوجيهات الإدارية ووصف المشكلة.</li>
+
+</ul><h3 style="color: #995F1B; font-size: 13pt; margin-top: 14pt;">📋 التبويبات الثلاثة في شاشة المنفذ (</code>/field<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">):</h3>
+
+<h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">📥 التبويب الأول: "معالجة بلاغات جديدة" (الجولة 1):</h4>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يحتوي على البلاغات الجديدة التي تم تكليفه بها من قبل مدير الإدارة.</li>
+<li style="margin-bottom: 4px;"><strong>حالات البطاقة وظهورها:</strong></li>
+<li style="margin-bottom: 4px;"><strong>الحالة: معلقة ⏳ (مطلوب اتخاذ الإجراء):</strong> يظهر نموذج إدخال الإجراء التصحيحي.</li>
+<li style="margin-bottom: 4px;">يقوم المنفذ بالعمل الميداني المطلوب.</li>
+<li style="margin-bottom: 4px;">يكتب الإجراء المتخذ في حقل: </code>🛠️ الإجراء التصحيحي المتخذ ميدانياً (إلزامي)<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">.</li>
+<li style="margin-bottom: 4px;">يكتب أي ملاحظات إضافية ثم يضغط <strong>"إرسال الإجراء التصحيحي للإدارة"</strong>.</li>
+<li style="margin-bottom: 4px;"><strong>بعد الإرسال:</strong></li>
+<li style="margin-bottom: 4px;">تتحول البطاقة لديه فوراً إلى:  </li>
+      </ul><strong>"الحالة: تم إرسال الرد ⏳ (قيد مراجعة واعتماد الإدارة)"</strong>.
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">تُقفل حقول الإدخال منعاً للازدواجية.</li>
+<li style="margin-bottom: 4px;"><strong>عند اعتماد الإدارة لرده:</strong></li>
+<li style="margin-bottom: 4px;">تتحول البطاقة إلى اللون الأخضر الزمرّدي:  </li>
+      </ul><strong>"الحالة: مقبولة ومعتمدة من الإدارة ✅ (بانتظار الإغلاق النهائي للبلاغ)"</strong>.
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">تظهر له رسالة توجيهية: "تم قبول ردك، وتبقى الحالة معلقة لدى بقية المنفذين المكلفين حتى يتم إغلاقها نهائياً".</li>
+
+</ul><h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">🔄 التبويب الثاني: "معالجة بلاغات معادة للاستكمال" (الجولة > 1):</h4>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يحتوي على البلاغات التي رأى مدير الإدارة أنها لم تُعالج بالشكل الكامل أو تحتاج استكمالاً.</li>
+<li style="margin-bottom: 4px;">تتميز البطاقة ببرواز أحمر وتنبيه مشدد:  </li>
+  </ul></code>⚠️ تنبيه إعادة إسناد / ملاحظات الإدارة للاستكمال<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يقرأ المنفذ ملاحظات الإدارة بدقة، وينفذ المطلوب إضافته، ثم يرسل الرد المحدث للإدارة للاعتماد.</li>
+
+</ul><h4 style="color: #1B1111; font-size: 11pt; margin-top: 10pt; font-weight: bold;">✅ التبويب الثالث: "معتمدة ومغلقة (التغذية الراجعة)":</h4>
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يحتوي على أرشيف البلاغات التي تم إغلاقها نهائياً من قبل الإدارة بعد التأكد من اكتمال المعالجة.</li>
+<li style="margin-bottom: 4px;"><strong>الصندوق التوجيهي الدائم (🔒 للقراءة فقط):</strong></li>
+<li style="margin-bottom: 4px;">يظهر في كل بطاقة صندوق أخضر بارز يحمل عنوان:  </li>
+    </ul></code>💡 التوجيه والملاحظات الإدارية الدائمة (تغذية راجعة) - 🔒 للقراءة فقط<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;">
+<ul style="padding-right: 25px; margin-top: 6px; margin-bottom: 10px;"><li style="margin-bottom: 4px;">يحتوي على التوجيه الإداري المكتوب لمنع تكرار هذه المخالفة مستقبلاً، ليكون دليلاً استرشادياً دائماً لكافة المنفذين.</li>
+
+</ul>---
+
+<h2 style="color: #682722; border-bottom: 2px solid #EFE8E1; padding-bottom: 6px; font-size: 16pt; margin-top: 18pt;">6. جدول المقارنة السريع بين الأدوار</h2>
+
+| الخاصية / الوظيفة | مدير النظام العام | مدير الإدارة | مفتش الجودة | المنفذ الميداني |
+| :--- | :---: | :---: | :---: | :---: |
+| <strong>واجهة الدخول</strong> | </code>/admin<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;"> | </code>/admin<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;"> | </code>/inspector<code style="background-color: #FAF3F3; color: #682722; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace;"> | </code>/field` |
+| <strong>نطاق الرؤية</strong> | المنظومة بالكامل | إدارته فقط | ما رصده فقط | ما كُلف به فقط |
+| <strong>إعدادات المنظومة وكادر المستخدمين</strong> | ✅ كامل الصلاحية | ❌ محجوبة | ❌ محجوبة | ❌ محجوبة |
+| <strong>رصد بلاغات جديدة</strong> | ✅ متاح | ❌ غير متاح | ✅ الوظيفة الأساسية | ❌ محجوب |
+| <strong>إسناد وتوزيع المهام</strong> | ✅ شامل لكل الإدارات | ✅ لمنفذي إدارته فقط | ❌ محجوب | ❌ محجوب |
+| <strong>اعتماد الرد الميداني</strong> | ✅ متاح | ✅ متاح لإدارته | ❌ محجوب | ❌ محجوب |
+| <strong>استكمال المهمة وإعادة التكليف</strong> | ✅ متاح | ✅ متاح لإدارته | ❌ محجوب | ❌ محجوب |
+| <strong>الإغلاق النهائي وتدوين التغذية الراجعة</strong> | ✅ متاح | ✅ متاح لإدارته | ❌ محجوب | ❌ محجوب |
+| <strong>تنفيذ المعالجات الميدانية</strong> | ❌ غير مخصص | ❌ غير مخصص | ❌ غير مخصص | ✅ الوظيفة الأساسية |
+| <strong>الاطلاع على اسم المفتش</strong> | ✅ ظاهر | ✅ ظاهر | ✅ ظاهر | 🚫 محجوب وسري تماماً |
+| <strong>العمل أوفلاين دون إنترنت</strong> | — | — | ✅ مدعوم بالكامل | — |
+
+---
+<strong>مطعم المراسيم | قسم إدارة الجودة والحوكمة المؤسسية</strong>  
+<em>تم إعداد وتحديث الدليل ليتوافق مع الإصدار المحدث لمنظومة المراسيم (CAPA V2) لعام 2026</em>
+
+      </div>
+      <div class="footer-note">
+        <p>منظومة حوكمة الجودة ومتابعة حالات عدم المطابقة (CAPA V2) © 2026 | جميع الحقوق محفوظة لمطعم المراسيم</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  

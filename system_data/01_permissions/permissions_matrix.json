@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "authority": "إدارة وإنشاء وتعديل المستخدمين ورموز PIN",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": false,
+    "note": "صلاحية حصرية للإدارة"
+  },
+  {
+    "id": 2,
+    "authority": "إدارة وتعيين الأدوار الوظيفية المخصصة",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": false,
+    "note": "توزيع الصلاحيات على الأقسام"
+  },
+  {
+    "id": 3,
+    "authority": "تسجيل بلاغات وحالات عدم المطابقة الميدانية",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": true,
+    "field_agent": false,
+    "note": "المهمة الأساسية للمفتش"
+  },
+  {
+    "id": 4,
+    "authority": "توثيق المخالفات بالصور والملاحظات الحية",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": true,
+    "field_agent": false,
+    "note": "توثيق فوري بدون كشف هوية المفتش"
+  },
+  {
+    "id": 5,
+    "authority": "إسناد وتوجيه المهام للأقسام والموظفين",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": false,
+    "note": "توجيه إداري إلزامي"
+  },
+  {
+    "id": 6,
+    "authority": "تنفيذ الإجراءات التصحيحية ورفع إثبات المعالجة",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": true,
+    "note": "المهمة الأساسية لمأمور الميدان"
+  },
+  {
+    "id": 7,
+    "authority": "مراجعة واعتماد إغلاق المخالفة نهائياً",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": true,
+    "field_agent": false,
+    "note": "إغلاق الحالة بعد التحقق"
+  },
+  {
+    "id": 8,
+    "authority": "إعادة الإسناد لجولة تصحيح جديدة (Reassign)",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": false,
+    "note": "إذا كان الإجراء غير كافٍ"
+  },
+  {
+    "id": 9,
+    "authority": "حذف حالات عدم المطابقة نهائياً من النظام",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": false,
+    "inspector": false,
+    "field_agent": false,
+    "note": "صلاحية سيادية محصورة بالسوبر أدمن والمدير العام"
+  },
+  {
+    "id": 10,
+    "authority": "معاينة وتصدير تقارير PDF الرسمية المعتمدة",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": true,
+    "field_agent": true,
+    "note": "متاحة حسب صلاحيات القسم"
+  },
+  {
+    "id": 11,
+    "authority": "الاطلاع على سجل الرقابة والتدقيق الأمني (Audit Logs)",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": false,
+    "field_agent": false,
+    "note": "تتبع كافة التغييرات وحركات النظام"
+  },
+  {
+    "id": 12,
+    "authority": "تعديل إعدادات الربط السحابي والمزامنة",
+    "super_admin": true,
+    "general_admin": false,
+    "admin": false,
+    "inspector": false,
+    "field_agent": false,
+    "note": "حصرية للسوبر أدمن (م. رائد)"
+  },
+  {
+    "id": 13,
+    "authority": "حماية الحساب السيادي (2222) من الحذف أو التعديل",
+    "super_admin": true,
+    "general_admin": false,
+    "admin": false,
+    "inspector": false,
+    "field_agent": false,
+    "note": "قفل أمان محمي برمجياً is_protected = 1"
+  },
+  {
+    "id": 14,
+    "authority": "إخفاء هوية المفتش في واجهات الميدان (حماية رقابية)",
+    "super_admin": true,
+    "general_admin": true,
+    "admin": true,
+    "inspector": true,
+    "field_agent": true,
+    "note": "سياسة حوكمة معتمدة"
+  }
+]

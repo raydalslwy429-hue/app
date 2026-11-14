@@ -1,0 +1,146 @@
+[
+  {
+    "id": 3,
+    "code": "loc_bakery",
+    "name": "معمل الحلويات والايسكريم",
+    "department_code": "aaa",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 7,
+    "code": "loc_central_kitchen",
+    "name": "المطبخ المركزي الرئيسي",
+    "department_code": "aaa",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 8,
+    "code": "loc_cold_store",
+    "name": "قسم الصيانة",
+    "department_code": "dept_maintenance",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 6,
+    "code": "loc_grill",
+    "name": "صالة العائلات",
+    "department_code": "dept_production",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 1,
+    "code": "loc_meat",
+    "name": "صالة المراسيم",
+    "department_code": "dept_production",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 2,
+    "code": "loc_prep",
+    "name": "معمل (اللحوم -الدجاج-الاسماك)",
+    "department_code": "aaa",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 5,
+    "code": "loc_seafood",
+    "name": "صالة كالتكس",
+    "department_code": "dept_production",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 4,
+    "code": "loc_veg",
+    "name": "معمل الخضار والفواكه",
+    "department_code": "aaa",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 9,
+    "code": "sec_1794333756159",
+    "name": "قسم المتابعة والتطوير للانتاج  والجودة",
+    "department_code": "dept_1794252132684",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 10,
+    "code": "sec_1794333812588",
+    "name": "قسم المتابعة والتطوير للخدمات المساندة",
+    "department_code": "dept_1794252132684",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 11,
+    "code": "sec_1794333861306",
+    "name": "قسم المتابعة والتطوير للجودة الادارية",
+    "department_code": "dept_1794252132684",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 12,
+    "code": "sec_1794457704909",
+    "name": "قسم شؤون الموظفين",
+    "department_code": "dept_quality",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 13,
+    "code": "sec_1794457730116",
+    "name": "قسم الشؤون الادارية",
+    "department_code": "dept_quality",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 14,
+    "code": "sec_1794457769306",
+    "name": "قسم التوظيف والتقييم والتدريب",
+    "department_code": "dept_quality",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 15,
+    "code": "sec_1794457793449",
+    "name": "قسم الحسابات",
+    "department_code": "dept_operations",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 16,
+    "code": "sec_1794457809402",
+    "name": "قسم المخازن",
+    "department_code": "dept_operations",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 17,
+    "code": "sec_1794457833598",
+    "name": "قسم تقنية المعلومات",
+    "department_code": "dept_maintenance",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 18,
+    "code": "sec_1794457861581",
+    "name": "قسم الحركة (النقل)",
+    "department_code": "dept_maintenance",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  }
+]

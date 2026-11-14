@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'
+      lang='ar' dir='rtl'>
+<head>
+  <meta charset='utf-8'>
+  <title>تقرير التطويرات والإصلاحات الشاملة - نظام المراسيم CAPA</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page {
+      size: A4;
+      margin: 2.5cm 2cm 2.5cm 2cm;
+      mso-header-margin: 1.25cm;
+      mso-footer-margin: 1.25cm;
+    }
+    body {
+      font-family: 'Segoe UI', 'Cairo', 'Arial', Tahoma, sans-serif;
+      direction: rtl;
+      text-align: right;
+      color: #1e293b;
+      line-height: 1.7;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .header-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 28px 24px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border-bottom: 4px solid #8b7355;
+    }
+    .brand-title {
+      font-size: 26pt;
+      font-weight: 900;
+      color: #d4af37;
+      margin: 0 0 6px 0;
+    }
+    .sub-title {
+      font-size: 14pt;
+      color: #e2e8f0;
+      margin: 0;
+    }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 25px;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .meta-table td {
+      padding: 8px 12px;
+      font-size: 11pt;
+    }
+    .section-title {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #1e293b;
+      border-right: 5px solid #8b7355;
+      padding-right: 12px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      background: #fdfbf7;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 10pt;
+      margin-left: 8px;
+    }
+    .badge-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-warning { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .badge-primary { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-gold { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 10.5pt;
+    }
+    table.data-table th {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px;
+      text-align: right;
+      border: 1px solid #334155;
+    }
+    table.data-table td {
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      text-align: right;
+    }
+    table.data-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .step-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+    }
+    .code-box {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: Consolas, monospace;
+      direction: ltr;
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 11pt;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-banner">
+    <div class="brand-title">مطاعم المراسيم AL-MARASEEM</div>
+    <div class="sub-title">نظام إدارة ومتابعة حالات عدم المطابقة والتحسين المستمر (CAPA System)</div>
+    <div style="font-size: 11pt; color: #94a3b8; margin-top: 8px;">تقرير التطويرات والإصلاحات البرمجية الشاملة - نسخة المكتب والمنزل الموحدة</div>
+  </div>
+
+  <div class="meta-box">
+    <table class="meta-table">
+      <tr>
+        <td><strong>تاريخ الاستخراج:</strong> 9 نوفمبر 2026</td>
+        <td><strong>مسؤول النظام الأول:</strong> م. رائد الصلوي (Super Admin)</td>
+      </tr>
+      <tr>
+        <td><strong>رمز الدخول المعتمد:</strong> <span class="badge badge-gold">PIN: 2222</span> (حساب سيادي محمي)</td>
+        <td><strong>بيئة العمل وقاعدة البيانات:</strong> Turso Cloud LibSQL (سحابية حية)</td>
+      </tr>
+      <tr>
+        <td><strong>منفذ التشغيل المعتمد:</strong> <span class="badge badge-primary">http://localhost:3000</span></td>
+        <td><strong>حالة النظام:</strong> <span class="badge badge-success">جاهز للعمل في المكتب 100%</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <h2 class="section-title">1. ملخص المشاكل السابقة والإصلاحات الجذرية</h2>
+  <div class="card">
+    <p>بناءً على مراجعة سجل التطويرات والملفات المفرغة من جهاز المكتب، كانت هناك أربع عقبات رئيسية تعيق استكمال النظام في جهاز المكتب، وتم حلها بالكامل كالتالي:</p>
+    <ul>
+      <li><strong>عائق ظهور الواجهة القديمة سابقاً:</strong> تم اكتشاف عملية خلفية غير مرئية لمشروع قديم (AI-Projects) تعمل سراً على المنفذ 3000، مما كان يخدع المتصفح. تم قتل كافة العمليات القديمة وتغيير إعدادات المشروع القديم إلى المنفذ 3999 لضمان بقاء المنفذ 3000 ملكاً حصرياً لنظام المراسيم.</li>
+      <li><strong>عائق إنشاء الأدوار الوظيفية:</strong> كان التحقق الأمني يستثني السوبر أدمن (م. رائد) بسبب فحص خاطئ (session.role !== "admin")، كما كانت العمليات تحاول الحفظ في جدول غير موجود اسمه (roles). تم تحويل كل شيء لجدول <code>custom_roles</code> الفعلي مع فحص شامل لكافة رتب الإدارة.</li>
+      <li><strong>عائق ربط حالات عدم المطابقة بالإدارات:</strong> تم ربط الحالات بكود الإدارة وكود القسم (جدول locations)، وبرمجة الفلترة التتابعية في واجهة المفتش مع إضافة محرك بحث فوري ذكي.</li>
+      <li><strong>عائق طباعة التقارير الرسمية:</strong> تم بناء محرك طباعة احترافي مطابق للهوية البصرية لمطاعم المراسيم ومجهز للطباعة والتصدير الفوري بصيغة PDF.</li>
+      <li><strong>عائق مصفوفة الصلاحيات:</strong> تم بناء شاشة متقدمة توضح الصلاحيات التفصيلية لـ 6 رتب وظيفية على 14 محوراً أمنياً ورقابياً.</li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">2. تفاصيل المطلب الأول: نظام الأدوار الوظيفية المخصصة (Custom Roles)</h2>
+  <div class="card">
+    <p><strong>الهدف:</strong> تمكين إدارة النظام من استحداث أدوار وظيفية جديدة وتحديد نطاق صلاحياتها بدقة على مستوى الإدارات والأقسام.</p>
+    <ul>
+      <li><strong>الجدول الفعلي المعتمد في Turso:</strong> <code>custom_roles</code> (يحتوي على: id, name, category, allowed_departments, allowed_sections, description, is_active, created_at).</li>
+      <li><strong>دالة الحماية الموحدة:</strong> تم اعتماد دالة <code>isAuthorizedAdmin()</code> التي تسمح لـ (super_admin, general_admin, admin) بالوصول الكامل دون أي عوائق.</li>
+      <li><strong>الواجهة التفاعلية:</strong>
+        <ul>
+          <li>اختيار فئة الدور: إداري، تفتيشي، أو مأمور ميدان.</li>
+          <li>مربعات اختيار متعددة (Checkboxes) للإدارات، مع خيار "جميع الإدارات".</li>
+          <li>مربعات اختيار متعددة للأقسام، مع خيار "جميع الأقسام".</li>
+          <li>أزرار التعديل والحذف وتغيير الحالة (نشط / معطل) بنقرة زر واحدة.</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">3. تفاصيل المطلب الثاني: ربط الحالات وتصفيتها التتابعية في واجهة المفتش</h2>
+  <div class="card">
+    <p><strong>الهدف:</strong> منع إدخال مخالفات عشوائية، وجعل كل حالة عدم مطابقة تابعة بدقة لإدارتها وقسمها المختص.</p>
+    <ul>
+      <li><strong>في لوحة تحكم مدير النظام:</strong>
+        <p>تم تحديث نموذج إضافة وتعديل الحالات ليرتبط بـ <code>department_code</code> و <code>section_code</code> (من جدول <code>locations</code>)، مع إمكانية وسم الحالة بأنها عامة لجميع الإدارات والأقسام.</p>
+      </li>
+      <li><strong>في واجهة المفتش الميداني (<code>/inspector</code>):</strong>
+        <p>تم تفعيل نظام التصفية الذكي التتابعي (Cascading Selection):</p>
+        <ol>
+          <li>عند اختيار الإدارة (مثال: إدارة الإنتاج)، تتقلص قائمة الأقسام لتظهر فقط الأقسام التابعة لها (مثال: قسم الطهي، قسم التجهيز).</li>
+          <li>عند اختيار القسم، يتم ترشيح حالات عدم المطابقة آلياً لتعرض فقط المخالفات المعرفة لهذا القسم وتلك الإدارة، بالإضافة للمخالفات العامة المشتركة.</li>
+          <li>تم تضمين حقل بحث فوري متقدم (Search Combobox) يتيح كتابة أي كلمة مفتاحية لاختيار الحالة بسرعة قياسية مع إمكانية مسح الاختيار بضغطة زر.</li>
+        </ol>
+      </li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">4. تفاصيل المطلب الثالث: نظام طباعة التقارير الرسمية PDF</h2>
+  <div class="card">
+    <p>تم إنشاء المكون البرمجي <code>OfficialPdfReportModal.tsx</code> ليكون محرك التقارير الرسمية المعتمد في مطاعم المراسيم، ويتضمن المعايير الرقابية التالية:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>عنصر التقرير</th>
+          <th>الوصف والتنفيذ البرمجي</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>الهوية والترويسة الرسمية</strong></td>
+          <td>شعار مطاعم المراسيم الأصلي، الترويسة الذهبية، رقم التقرير التسلسلي، اسم المشرف المستخرج للتقرير، وتوقيت وتاريخ الاستخراج بدقة.</td>
+        </tr>
+        <tr>
+          <td><strong>لوحة مؤشرات الأداء (KPIs)</strong></td>
+          <td>5 بطاقات إحصائية ملونة توضح: إجمالي الحالات، الحالات المفتوحة، الحالات قيد المعالجة، الحالات المغلقة، ونسبة إنجاز الإغلاق %.</td>
+        </tr>
+        <tr>
+          <td><strong>جدول الحالات التفصيلي</strong></td>
+          <td>عرض منظم لجميع الحالات مع شارات توضح درجة الخطورة (حرجة، متوسطة، منخفضة)، القسم، الإدارة، وتاريخ التسجيل.</td>
+        </tr>
+        <tr>
+          <td><strong>خانات الاعتماد والتوقيع الثلاثية</strong></td>
+          <td>أقسام مخصصة لختم وتوقيع: (1) المفتش الرقابي المعد، (2) رئيس القسم المعني، (3) اعتماد الإدارة العامة.</td>
+        </tr>
+        <tr>
+          <td><strong>أمر الطباعة والتصدير كـ PDF</strong></td>
+          <td>زر موحد يقوم باستدعاء أمر الطباعة المنسق خصيصاً بنظام <code>@media print</code> وحجم <code>A4 Landscape</code>، ليتم حفظه فورياً كملف PDF عالي الدقة دون أي إطارات إضافية.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">5. تفاصيل المطلب الرابع: مصفوفة توزيع الصلاحيات وقواعد الحوكمة</h2>
+  <div class="card">
+    <p>تم بناء واجهة مصفوفة الصلاحيات <code>PermissionsMatrixView.tsx</code> لترسيخ مبدأ الشفافية والحوكمة الرقابية، وتغطي الرتب الست في النظام:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>الصلاحية / المحور الرقابي</th>
+          <th>السوبر أدمن (2222)</th>
+          <th>المدير العام</th>
+          <th>مدير النظام</th>
+          <th>المفتش</th>
+          <th>مأمور الميدان</th>
+          <th>الأدوار المخصصة</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>إدارة وتعديل المستخدمين والـ PIN</td>
+          <td>✔ كاملة</td>
+          <td>✔ كاملة</td>
+          <td>✔ كاملة</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+          <td>حسب الصلاحية</td>
+        </tr>
+        <tr>
+          <td>إدارة وحذف الأدوار المخصصة</td>
+          <td>✔ كاملة</td>
+          <td>✔ كاملة</td>
+          <td>✔ كاملة</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+        </tr>
+        <tr>
+          <td>تسجيل حالات عدم المطابقة والصور</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ أساسي</td>
+          <td>❌ ممنوع</td>
+          <td>حسب الفئة</td>
+        </tr>
+        <tr>
+          <td>معالجة ورفع إجراءات التصحيح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>❌ مراقبة فقط</td>
+          <td>✔ أساسي</td>
+          <td>حسب الفئة</td>
+        </tr>
+        <tr>
+          <td>إغلاق الحالة والاعتماد النهائي</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>❌ ممنوع</td>
+          <td>حسب الصلاحية</td>
+        </tr>
+        <tr>
+          <td>حذف حالات عدم المطابقة نهائياً</td>
+          <td>✔ سيادية (محصورة)</td>
+          <td>✔ سيادية (محصورة)</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+        </tr>
+        <tr>
+          <td>طباعة وتصدير تقارير PDF الرسمية</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>حسب القسم</td>
+        </tr>
+        <tr>
+          <td>الاطلاع على سجل الرقابة والتدقيق (Audit)</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>✔ متاح</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+          <td>❌ ممنوع</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 6px; margin-top: 15px;">
+      <p style="margin: 0; color: #92400e; font-size: 10.5pt;">
+        <strong>قواعد الحوكمة الصارمة:</strong><br>
+        1. <strong>حماية حساب السوبر أدمن (م. رائد الصلوي - 2222):</strong> محمي بخاصية <code>is_protected = 1</code> لمنع الحذف أو تغيير الدور أو تعطيل الحساب تحت أي ظرف.<br>
+        2. <strong>قفل تصفير قاعدة البيانات:</strong> تم حظر أي أمر قد يسبب تصفير قاعدة بيانات Turso الحية.<br>
+        3. <strong>حماية المفتشين:</strong> يتم حجب أسماء المفتشين في واجهات الميدان لحمايتهم الرقابية وتفادي الحرج الميداني.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="section-title">6. دليل تشغيل التطبيق في جهاز المكتب (خطوة بخطوة)</h2>
+  <div class="card">
+    <p>لنقل هذا العمل والمتابعة عليه في جهاز المكتب، اتبع الخطوات السهلة التالية:</p>
+
+    <div class="step-box">
+      <strong>الخطوة الأولى: فك الضغط</strong>
+      <p style="margin: 5px 0;">انسخ الملف المضغوط <code>marasim_app_office_edition_20261109.zip</code> إلى جهاز المكتب وقم بفك الضغط عنه في المجلد المخصص لمشاريعك.</p>
+    </div>
+
+    <div class="step-box">
+      <strong>الخطوة الثانية: فتح موجه الأوامر</strong>
+      <p style="margin: 5px 0;">افتح موجه الأوامر (CMD أو PowerShell أو Terminal) داخل مجلد المشروع المفرغ.</p>
+    </div>
+
+    <div class="step-box">
+      <strong>الخطوة الثالثة: تثبيت المكتبات (لأول مرة فقط)</strong>
+      <p style="margin: 5px 0;">اكتب الأمر التالي واضغط Enter وانتظر انتهاء التثبيت:</p>
+      <div class="code-box">npm install</div>
+    </div>
+
+    <div class="step-box">
+      <strong>الخطوة الرابعة: تشغيل التطبيق</strong>
+      <p style="margin: 5px 0;">شغل السيرفر عبر الأمر التالي:</p>
+      <div class="code-box">npm run dev</div>
+      <p style="margin: 5px 0; font-size: 10pt; color: #475569;">(أو يمكنك النقر بالزر الأيمن على ملف <code>run_server.ps1</code> واختيار تشغيل عبر PowerShell).</p>
+    </div>
+
+    <div class="step-box">
+      <strong>الخطوة الخامسة: الدخول للمتصفح والتجربة</strong>
+      <p style="margin: 5px 0;">افتح المتصفح وتوجه إلى الرابط التالي:</p>
+      <div class="code-box">http://localhost:3000</div>
+    </div>
+
+    <div class="step-box">
+      <strong>الخطوة السادسة: تسجيل الدخول</strong>
+      <p style="margin: 5px 0;">استخدم رمز الدخول الخاص بحسابك (السوبر أدمن):</p>
+      <div style="font-size: 14pt; font-weight: 900; color: #8b7355; margin-top: 6px;">رمز الدخول: 2222</div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 2px dashed #cbd5e1; color: #64748b; font-size: 10.5pt;">
+    نظام إدارة مطاعم المراسيم (CAPA) &copy; 2026 - تم إعداد هذا التقرير وتجهيز الحزمة المحدثة بواسطة فريق التطوير
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "brand_name": "مطاعم المراسيم AL-MARASEEM",
+  "system_title": "نظام إدارة ومتابعة حالات عدم المطابقة والتحسين المستمر (CAPA)",
+  "logo_path": "/brand/logo.png",
+  "default_page_orientation": "landscape",
+  "paper_size": "A4",
+  "kpi_cards": [
+    {
+      "key": "total",
+      "label": "إجمالي الحالات",
+      "color": "blue"
+    },
+    {
+      "key": "open",
+      "label": "الحالات المفتوحة",
+      "color": "amber"
+    },
+    {
+      "key": "in_progress",
+      "label": "قيد المعالجة الميدانية",
+      "color": "purple"
+    },
+    {
+      "key": "closed",
+      "label": "المغلقة والمعتمدة",
+      "color": "emerald"
+    },
+    {
+      "key": "completion_rate",
+      "label": "نسبة الإنجاز %",
+      "color": "gold"
+    }
+  ],
+  "signatures": [
+    {
+      "role": "inspector",
+      "title": "توقيع المفتش الرقابي المُعد"
+    },
+    {
+      "role": "department_head",
+      "title": "توقيع وختم رئيس القسم المعني"
+    },
+    {
+      "role": "super_admin",
+      "title": "اعتماد الإدارة العامة لمطاعم المراسيم"
+    }
+  ]
+}

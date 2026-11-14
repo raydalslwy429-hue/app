@@ -1,0 +1,79 @@
+[
+  {
+    "id": 7,
+    "code": "nc_1794447080461",
+    "name": "مزاح اثناء العمل",
+    "severity": "medium",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": "في الحالة التى تظهر المنشاءة بشكل غير لائق او تؤثر على سير العمل"
+  },
+  {
+    "id": 3,
+    "code": "nc_cross",
+    "name": "مخاطر التلوث الخلطي بين المنتجات",
+    "severity": "high",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  },
+  {
+    "id": 1,
+    "code": "nc_hygiene",
+    "name": "نظافة وتعقيم غير مطابقة",
+    "severity": "high",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  },
+  {
+    "id": 5,
+    "code": "nc_label",
+    "name": "غياب أو انتهاء بطاقات التتبع وتواريخ الصلاحية",
+    "severity": "medium",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  },
+  {
+    "id": 4,
+    "code": "nc_pest",
+    "name": "مكافحة آفات ووقاية صحية",
+    "severity": "medium",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  },
+  {
+    "id": 6,
+    "code": "nc_ppe",
+    "name": "نظافة",
+    "severity": "low",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "aaa",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  },
+  {
+    "id": 2,
+    "code": "nc_temp",
+    "name": "اختلال في درجات حرارة التبريد أو الحفظ",
+    "severity": "high",
+    "created_at": "2026-11-14 03:13:53",
+    "department_code": "all",
+    "section_code": "all",
+    "status": "active",
+    "description": ""
+  }
+]

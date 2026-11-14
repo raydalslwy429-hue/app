@@ -1,0 +1,44 @@
+[
+  {
+    "id": 5,
+    "code": "aaa",
+    "name": "ادارة الانتاج  والجودة الغذائية",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 6,
+    "code": "dept_1794252132684",
+    "name": "ادارة المتابعة  والتطوير",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 4,
+    "code": "dept_maintenance",
+    "name": "إدارة الخدمات المساندة",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 2,
+    "code": "dept_operations",
+    "name": "إدارة المالية",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 1,
+    "code": "dept_production",
+    "name": "إدارة المبيعات والتسويق",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  },
+  {
+    "id": 3,
+    "code": "dept_quality",
+    "name": "إدارة الموارد  البشرية",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53"
+  }
+]

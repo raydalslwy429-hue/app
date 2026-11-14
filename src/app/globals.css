@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 35 30% 98%;
+  --foreground: 20 25% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 25% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 25% 10%;
+  --primary: 38 65% 53%; /* Al-Marasim Gold */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 25% 94%;
+  --secondary-foreground: 20 25% 15%;
+  --muted: 35 20% 95%;
+  --muted-foreground: 25 15% 45%;
+  --accent: 38 65% 53%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 35 20% 88%;
+  --input: 35 20% 88%;
+  --ring: 38 65% 53%;
+  --radius: 1rem;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Arabic", sans-serif;
+  background-color: #FAF7F4;
+  color: #1B1111;
+  direction: rtl;
+}
+
+/* Luxury Al-Marasim Gold Gradient */
+.gold-gradient {
+  background: linear-gradient(135deg, #FFC217 0%, #D49A3D 50%, #B87B28 100%);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFD359 0%, #D49A3D 50%, #A86A1D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Espresso Luxury Gradient */
+.espresso-gradient {
+  background: linear-gradient(145deg, #1B1111 0%, #2A1C16 50%, #150E0C 100%);
+}
+
+/* Subtle Mashrabiya Lattice Pattern Background */
+.mashrabiya-bg {
+  background-color: #1B1111;
+  background-image: radial-gradient(#D49A3D 0.75px, transparent 0.75px), radial-gradient(#D49A3D 0.75px, #1B1111 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  background-opacity: 0.15;
+}
+
+/* Golden Glow Box Shadow */
+.gold-glow {
+  box-shadow: 0 0 25px rgba(212, 154, 61, 0.25);
+}
+
+.gold-glow-lg {
+  box-shadow: 0 0 40px rgba(212, 154, 61, 0.35);
+}

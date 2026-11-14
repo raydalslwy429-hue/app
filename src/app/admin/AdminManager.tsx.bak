@@ -1,0 +1,2646 @@
+"use client";
+
+import React, { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Menu,
+  X,
+  Inbox,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  RotateCcw,
+  CheckCheck,
+  XCircle,
+  Clock,
+  MapPin,
+  Tag,
+  User,
+  ShieldCheck,
+  Send,
+  FileText,
+  Filter,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  AlertOctagon,
+  History,
+  Sparkles,
+  Building2,
+  FolderTree,
+  Users,
+  KeyRound,
+  Shield,
+  Download,
+  Printer,
+  PlusCircle,
+  Trash2,
+  Edit3,
+  Sliders,
+  Calendar,
+  Check,
+  Eye,
+  Settings,
+  ArrowRight,
+  Power,
+  Lock,
+  UserCheck,
+  RotateCw,
+  Loader2,
+} from "lucide-react";
+import {
+  assignCaseAction,
+  approveTaskAction,
+  reassignTaskAction,
+  closeCaseEntirelyAction,
+  deleteCaseAction,
+  createDepartmentAction,
+  updateDepartmentAction,
+  deleteDepartmentAction,
+  toggleDepartmentStatusAction,
+  createSectionAction,
+  updateSectionAction,
+  deleteSectionAction,
+  toggleSectionStatusAction,
+  createCustomRoleAction,
+  updateCustomRoleAction,
+  deleteCustomRoleAction,
+  toggleCustomRoleStatusAction,
+  createUserAction,
+  updateUserAction,
+  deleteUserAction,
+  toggleUserStatusAction,
+  toggleUserExcelAction,
+  changeUserPinAction,
+  changeMyPinAction,
+  createCategoryAction,
+  updateCategoryAction,
+  deleteCategoryAction,
+  toggleCategoryStatusAction,
+  createInspectionAction,
+  resetDatabaseAction,
+} from "@/app/actions/capa";
+import OfficialPdfReportModal from "@/components/OfficialPdfReportModal";
+import PermissionsMatrixView from "@/components/PermissionsMatrixView";
+import FormBuilder from "./FormBuilder";
+
+// Props types
+interface AdminManagerProps {
+  currentUser: any;
+  userPermissions?: any;
+  departments: any[];
+  sections: any[];
+  roles: any[];
+  users: any[];
+  fieldRoles: any[];
+  categories: any[];
+  locations: any[];
+  pendingCases: any[];
+  inProgressCases: any[];
+  reviewItems: any[];
+  closedCases: any[];
+  allCases: any[];
+  auditLogs: any[];
+  permissionsMatrix?: any[];
+}
+
+export default function AdminManager({
+  currentUser,
+  userPermissions,
+  departments,
+  sections,
+  roles,
+  users,
+  fieldRoles,
+  categories,
+  locations,
+  pendingCases,
+  inProgressCases,
+  reviewItems,
+  closedCases,
+  allCases,
+  auditLogs,
+  permissionsMatrix = [],
+}: AdminManagerProps) {
+  const router = useRouter();
+
+  // Navigation State
+  const [activeMenu, setActiveMenu] = useState<string>("open_cases");
+  const [configTab, setConfigTab] = useState<"depts" | "sections" | "roles" | "categories" | "matrix" | "reset">("depts");
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const [isPending, startTransition] = useTransition();
+
+  // Loading & Submitting Locks (Double-click prevention)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  // Database Reset State
+  const [resetAdminPin, setResetAdminPin] = useState("");
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
+
+  // Role permissions granular states for role modal
+  const [rolePermView, setRolePermView] = useState<"full" | "dept_only" | "none">("dept_only");
+  const [rolePermAssign, setRolePermAssign] = useState<"full" | "dept_only" | "none">("dept_only");
+  const [rolePermReview, setRolePermReview] = useState<"full" | "dept_only" | "none">("dept_only");
+  const [rolePermClose, setRolePermClose] = useState<"full" | "dept_only" | "none">("dept_only");
+  const [rolePermCreate, setRolePermCreate] = useState<"full" | "dept_only" | "none">("dept_only");
+
+  const isSuperAdmin = currentUser?.role === "super_admin";
+  const isGeneralAdmin = currentUser?.role === "general_admin";
+  const canDeleteCases = isSuperAdmin || isGeneralAdmin;
+
+  // Notification Banner
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const showNotification = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 6000);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh();
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showNotification("success", "تم تحديث كافة بيانات المنظومة بنجاح");
+    }, 700);
+  };
+
+  // Listen to drawer navigation events from Navbar hamburger menu
+  useEffect(() => {
+    const handleDrawerNavigate = (e: any) => {
+      const key = e.detail?.key;
+      if (key) {
+        if (key === "open_cases") setActiveMenu("open_cases");
+        else if (key === "in_progress") setActiveMenu("in_progress_cases");
+        else if (key === "needs_review") setActiveMenu("review_cases");
+        else if (key === "closed_cases") setActiveMenu("closed_cases");
+        else if (key === "departments") { setActiveMenu("system_config"); setConfigTab("depts"); }
+        else if (key === "sections") { setActiveMenu("system_config"); setConfigTab("sections"); }
+        else if (key === "roles") { setActiveMenu("system_config"); setConfigTab("roles"); }
+        else if (key === "categories") { setActiveMenu("system_config"); setConfigTab("categories"); }
+        else if (key === "permissions_matrix") { setActiveMenu("system_config"); setConfigTab("matrix"); }
+        else setActiveMenu(key);
+      }
+    };
+    window.addEventListener("marasim_drawer_navigate", handleDrawerNavigate);
+    return () => window.removeEventListener("marasim_drawer_navigate", handleDrawerNavigate);
+  }, []);
+
+  // Dispatch state (departments & specific users)
+  const [dispatchSelections, setDispatchSelections] = useState<Record<number, string[]>>({});
+  const [dispatchUserSelections, setDispatchUserSelections] = useState<Record<number, number[]>>({});
+  const [dispatchInstructions, setDispatchInstructions] = useState<Record<number, string>>({});
+  const [dispatchLoading, setDispatchLoading] = useState<Record<number, boolean>>({});
+
+  // Review Modals
+  const [activeReviewModal, setActiveReviewModal] = useState<{
+    type: "reassign" | "close";
+    item: any;
+  } | null>(null);
+  const [reassignDepts, setReassignDepts] = useState<string[]>([]);
+  const [reassignNotes, setReassignNotes] = useState("");
+  const [closeNotes, setCloseNotes] = useState("");
+  const [reviewLoading, setReviewLoading] = useState<Record<string, boolean>>({});
+
+  // Modals for CRUD
+  const [showAddDeptModal, setShowAddDeptModal] = useState(false);
+  const [editingDept, setEditingDept] = useState<any | null>(null);
+
+  const [showAddSectionModal, setShowAddSectionModal] = useState(false);
+  const [editingSection, setEditingSection] = useState<any | null>(null);
+
+  // Custom Roles State
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [editingRole, setEditingRole] = useState<any | null>(null);
+  const [roleFormName, setRoleFormName] = useState("");
+  const [roleFormCategory, setRoleFormCategory] = useState<"admin" | "inspector" | "field_agent">("inspector");
+  const [roleFormAllDepts, setRoleFormAllDepts] = useState(true);
+  const [roleFormSelectedDepts, setRoleFormSelectedDepts] = useState<string[]>([]);
+  const [roleFormAllSections, setRoleFormAllSections] = useState(true);
+  const [roleFormSelectedSections, setRoleFormSelectedSections] = useState<string[]>([]);
+  const [roleFormDesc, setRoleFormDesc] = useState("");
+
+  // Categories (Non-conformity) State
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [catFormName, setCatFormName] = useState("");
+  const [catFormSeverity, setCatFormSeverity] = useState<"low" | "medium" | "high">("medium");
+  const [catFormAllDepts, setCatFormAllDepts] = useState(true);
+  const [catFormSelectedDepts, setCatFormSelectedDepts] = useState<string[]>([]);
+  const [catFormAllSections, setCatFormAllSections] = useState(true);
+  const [catFormSelectedSections, setCatFormSelectedSections] = useState<string[]>([]);
+  const [catFormDesc, setCatFormDesc] = useState("");
+
+  // User State
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [changePinModalUser, setChangePinModalUser] = useState<any | null>(null);
+  const [userFormName, setUserFormName] = useState("");
+  const [userFormJobTitle, setUserFormJobTitle] = useState("");
+  const [userFormCustomRoleId, setUserFormCustomRoleId] = useState<string>("none");
+  const [userFormRole, setUserFormRole] = useState("field_agent");
+  const [userFormDept, setUserFormDept] = useState("");
+  const [userFormCanExcel, setUserFormCanExcel] = useState(false);
+
+  // PDF Report Modal State
+  const [showPdfModal, setShowPdfModal] = useState(false);
+
+  // My PIN Change state
+  const [currentPinInput, setCurrentPinInput] = useState("");
+  const [newPinInput, setNewPinInput] = useState("");
+  const [confirmPinInput, setConfirmPinInput] = useState("");
+
+  // Search in all cases
+  const [caseSearchQuery, setCaseSearchQuery] = useState("");
+  const [caseFilterStatus, setCaseFilterStatus] = useState("all");
+
+  // Section Department Filter
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState<string>("all");
+
+  // ==========================================
+  // DISPATCH HANDLERS
+  // ==========================================
+  const toggleDeptForCase = (caseId: number, deptCode: string) => {
+    setDispatchSelections((prev) => {
+      const current = prev[caseId] || [];
+      const updated = current.includes(deptCode)
+        ? current.filter((c) => c !== deptCode)
+        : [...current, deptCode];
+      return { ...prev, [caseId]: updated };
+    });
+  };
+
+  const toggleUserForCase = (caseId: number, userId: number) => {
+    setDispatchUserSelections((prev) => {
+      const current = prev[caseId] || [];
+      const updated = current.includes(userId)
+        ? current.filter((id) => id !== userId)
+        : [...current, userId];
+      return { ...prev, [caseId]: updated };
+    });
+  };
+
+  const handleDispatch = async (c: any) => {
+    const selectedDepts = dispatchSelections[c.id] || [];
+    const selectedUserIds = dispatchUserSelections[c.id] || [];
+    const instructions = dispatchInstructions[c.id] || "";
+
+    if (selectedDepts.length === 0 && selectedUserIds.length === 0) {
+      showNotification("error", `يرجى اختيار جهة مكلفة أو موظف واحد على الأقل للحالة #${c.case_number}`);
+      return;
+    }
+
+    const targetUsersList = selectedUserIds.map((uid) => {
+      const u = users.find((usr) => usr.id === uid);
+      return {
+        id: uid,
+        name: u?.full_name || `موظف #${uid}`,
+        deptCode: u?.department_code || "dept",
+      };
+    });
+
+    setDispatchLoading((prev) => ({ ...prev, [c.id]: true }));
+    try {
+      const res = await assignCaseAction(c.id, selectedDepts, instructions, targetUsersList);
+      if (res.success) {
+        showNotification("success", `تم إسناد الحالة #${c.case_number} بنجاح!`);
+      } else {
+        showNotification("error", res.error || "حدث خطأ أثناء الإسناد");
+      }
+    } catch (e: any) {
+      showNotification("error", e.message || "حدث خطأ غير متوقع");
+    } finally {
+      setDispatchLoading((prev) => ({ ...prev, [c.id]: false }));
+    }
+  };
+
+  // Review Scenario 1
+  const handleApprove = async (item: any) => {
+    setReviewLoading((prev) => ({ ...prev, [item.assignment_id]: true }));
+    try {
+      const res = await approveTaskAction(item.assignment_id, "تم التحقق واعتماد الإجراء الميداني من قبل الإدارة");
+      if (res.success) {
+        if (res.caseClosed) {
+          showNotification("success", `🎉 تم اعتماد الإجراء بنجاح واكتملت جميع المهام، فتم إغلاق الحالة #${item.case_number} بالكامل.`);
+        } else {
+          showNotification("success", `تم اعتماد رد ${item.executor_name} للحالة #${item.case_number}. الحالة بانتظار بقية المنفذين.`);
+        }
+      } else {
+        showNotification("error", res.error || "فشل الاعتماد");
+      }
+    } catch (e: any) {
+      showNotification("error", e.message || "حدث خطأ أثناء الاعتماد");
+    } finally {
+      setReviewLoading((prev) => ({ ...prev, [item.assignment_id]: false }));
+    }
+  };
+
+  // Review Scenario 2: Reassign
+  const handleReassignSubmit = async () => {
+    if (!activeReviewModal || activeReviewModal.type !== "reassign") return;
+    const { item } = activeReviewModal;
+
+    if (!reassignNotes.trim()) {
+      showNotification("error", "يرجى كتابة أسباب الرفض وملاحظات الإعادة");
+      return;
+    }
+    if (reassignDepts.length === 0) {
+      showNotification("error", "يرجى تحديد جهة واحدة على الأقل لإعادة الإسناد");
+      return;
+    }
+
+    try {
+      const res = await reassignTaskAction(item.case_id, reassignDepts, reassignNotes);
+      if (res.success) {
+        showNotification("success", `تم رفض الإجراء وإعادة إسناد الحالة #${item.case_number} للجولة (${res.nextRound})`);
+        setActiveReviewModal(null);
+        setReassignNotes("");
+        setReassignDepts([]);
+      } else {
+        showNotification("error", res.error || "فشل إعادة الإسناد");
+      }
+    } catch (e: any) {
+      showNotification("error", e.message || "حدث خطأ أثناء إعادة الإسناد");
+    }
+  };
+
+  // Review Scenario 3: Force Close
+  const handleCloseSubmit = async () => {
+    if (!activeReviewModal || activeReviewModal.type !== "close") return;
+    const { item } = activeReviewModal;
+
+    try {
+      const res = await closeCaseEntirelyAction(item.case_id, closeNotes);
+      if (res.success) {
+        showNotification("success", `تم إغلاق الحالة #${item.case_number} بالكامل واعتمادها نهائياً`);
+        setActiveReviewModal(null);
+        setCloseNotes("");
+      } else {
+        showNotification("error", res.error || "فشل إغلاق الحالة");
+      }
+    } catch (e: any) {
+      showNotification("error", e.message || "حدث خطأ أثناء الإغلاق");
+    }
+  };
+
+  // Delete Case
+  const handleDeleteCase = async (caseItem: any) => {
+    if (!canDeleteCases) {
+      showNotification("error", "صلاحية حذف الحالات محصورة بالمدير العام ومدير النظام");
+      return;
+    }
+
+    if (confirm(`هل أنت متأكد من حذف الحالة #${caseItem.case_number} (${caseItem.nc_name}) نهائياً؟\nسيتم تنظيف كافة التكليفات والردود وسجل التدقيق المرتبط بها.`)) {
+      try {
+        const res = await deleteCaseAction(caseItem.id);
+        if (res.success) {
+          showNotification("success", `تم حذف الحالة #${caseItem.case_number} نهائياً بنجاح`);
+        } else {
+          showNotification("error", res.error || "فشل حذف الحالة");
+        }
+      } catch (e: any) {
+        showNotification("error", e.message || "حدث خطأ أثناء الحذف");
+      }
+    }
+  };
+
+  // Handle Role Form Open
+  const handleOpenAddRole = () => {
+    setEditingRole(null);
+    setRoleFormName("");
+    setRoleFormCategory("inspector");
+    setRoleFormAllDepts(false);
+    setRoleFormSelectedDepts(departments.length > 0 ? [departments[0].code] : []);
+    setRoleFormAllSections(true);
+    setRoleFormSelectedSections([]);
+    setRoleFormDesc("");
+    setRolePermView("dept_only");
+    setRolePermAssign("dept_only");
+    setRolePermReview("dept_only");
+    setRolePermClose("dept_only");
+    setRolePermCreate("dept_only");
+    setShowRoleModal(true);
+  };
+
+  const handleOpenEditRole = (roleItem: any) => {
+    setEditingRole(roleItem);
+    setRoleFormName(roleItem.name || "");
+    setRoleFormCategory(roleItem.category || "inspector");
+    const isAllD = !roleItem.allowed_departments || roleItem.allowed_departments === "all";
+    setRoleFormAllDepts(isAllD);
+    setRoleFormSelectedDepts(isAllD ? [] : (roleItem.allowed_departments || "").split(","));
+    const isAllS = !roleItem.allowed_sections || roleItem.allowed_sections === "all";
+    setRoleFormAllSections(isAllS);
+    setRoleFormSelectedSections(isAllS ? [] : (roleItem.allowed_sections || "").split(","));
+    setRoleFormDesc(roleItem.description || "");
+
+    // Parse role permissions if available
+    try {
+      const p = JSON.parse(roleItem.permissions_json || "{}");
+      setRolePermView(p.can_view || "dept_only");
+      setRolePermAssign(p.can_assign || "dept_only");
+      setRolePermReview(p.can_review || "dept_only");
+      setRolePermClose(p.can_close || "dept_only");
+      setRolePermCreate(p.can_create || "dept_only");
+    } catch {
+      setRolePermView("dept_only");
+      setRolePermAssign("dept_only");
+      setRolePermReview("dept_only");
+      setRolePermClose("dept_only");
+      setRolePermCreate("dept_only");
+    }
+
+    setShowRoleModal(true);
+  };
+
+  const handleSaveRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!roleFormName.trim()) {
+      showNotification("error", "يرجى كتابة مسمى الدور الوظيفي");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const permissionsJson = JSON.stringify({
+      can_view: rolePermView,
+      can_assign: rolePermAssign,
+      can_review: rolePermReview,
+      can_close: rolePermClose,
+      can_create: rolePermCreate,
+    });
+
+    const payload = {
+      name: roleFormName.trim(),
+      category: roleFormCategory,
+      allowedDepartments: roleFormAllDepts ? ["all"] : roleFormSelectedDepts,
+      allowedSections: roleFormAllSections ? ["all"] : roleFormSelectedSections,
+      description: roleFormDesc.trim(),
+      permissions: permissionsJson,
+    };
+
+    try {
+      let res;
+      if (editingRole) {
+        res = await updateCustomRoleAction(editingRole.id, payload);
+      } else {
+        res = await createCustomRoleAction(payload);
+      }
+
+      if (res.success) {
+        showNotification("success", editingRole ? "تم تعديل الدور الوظيفي بنجاح!" : "تم إنشاء الدور الوظيفي بنجاح!");
+        setShowRoleModal(false);
+        router.refresh();
+      } else {
+        showNotification("error", res.error || "فشل حفظ الدور");
+      }
+    } catch (err: any) {
+      showNotification("error", err.message || "حدث خطأ غير متوقع");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle Category Form Open
+  const handleOpenAddCategory = () => {
+    setEditingCategory(null);
+    setCatFormName("");
+    setCatFormSeverity("medium");
+    setCatFormAllDepts(true);
+    setCatFormSelectedDepts([]);
+    setCatFormAllSections(true);
+    setCatFormSelectedSections([]);
+    setCatFormDesc("");
+    setShowCategoryModal(true);
+  };
+
+  const handleOpenEditCategory = (catItem: any) => {
+    setEditingCategory(catItem);
+    setCatFormName(catItem.name || "");
+    setCatFormSeverity(catItem.severity || "medium");
+    const isAllD = !catItem.department_code || catItem.department_code === "all";
+    setCatFormAllDepts(isAllD);
+    setCatFormSelectedDepts(isAllD ? [] : (catItem.department_code || "").split(",").map((s: string) => s.trim()));
+    const isAllS = !catItem.section_code || catItem.section_code === "all";
+    setCatFormAllSections(isAllS);
+    setCatFormSelectedSections(isAllS ? [] : (catItem.section_code || "").split(",").map((s: string) => s.trim()));
+    setCatFormDesc(catItem.description || "");
+    setShowCategoryModal(true);
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!catFormName.trim()) {
+      showNotification("error", "يرجى إدخال اسم حالة عدم المطابقة");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const deptsVal = catFormAllDepts || catFormSelectedDepts.length === 0 ? "all" : catFormSelectedDepts.join(",");
+    const secsVal = catFormAllSections || catFormSelectedSections.length === 0 ? "all" : catFormSelectedSections.join(",");
+
+    try {
+      let res;
+      if (editingCategory) {
+        res = await updateCategoryAction(
+          editingCategory.id,
+          catFormName.trim(),
+          catFormSeverity,
+          deptsVal,
+          secsVal,
+          catFormDesc.trim()
+        );
+      } else {
+        res = await createCategoryAction(
+          catFormName.trim(),
+          catFormSeverity,
+          deptsVal,
+          secsVal,
+          catFormDesc.trim()
+        );
+      }
+
+      if (res.success) {
+        showNotification("success", editingCategory ? "تم تعديل حالة عدم المطابقة بنجاح!" : "تمت إضافة حالة عدم المطابقة بنجاح!");
+        setShowCategoryModal(false);
+        router.refresh();
+      } else {
+        showNotification("error", res.error || "فشل الحفظ");
+      }
+    } catch (err: any) {
+      showNotification("error", err.message || "حدث خطأ غير متوقع");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle Edit User Open
+  const handleOpenEditUser = (u: any) => {
+    setEditingUser(u);
+    setUserFormName(u.full_name || "");
+    setUserFormJobTitle(u.job_title || "");
+    setUserFormCustomRoleId(u.custom_role_id ? String(u.custom_role_id) : "none");
+    setUserFormRole(u.role || "field_agent");
+    setUserFormDept(u.department_code || "");
+    setUserFormCanExcel(u.can_export_excel === 1);
+    setShowEditUserModal(true);
+  };
+
+  // Sections filtered by selected departments for category modal
+  const modalSectionsFiltered = sections.filter((s) => {
+    if (catFormAllDepts || catFormSelectedDepts.length === 0) return true;
+    return catFormSelectedDepts.includes(s.department_code);
+  });
+
+  // Filter sections by department for sections view
+  const filteredSections = sections.filter(
+    (s) => selectedDeptFilter === "all" || s.department_code === selectedDeptFilter
+  );
+
+  // Navigation Items Structure
+  const menuGroups = [
+    {
+      group: "العمليات وحالات عدم المطابقة (CAPA)",
+      items: [
+        { id: "create_case", label: "إنشاء حالة جديدة", icon: PlusCircle, badge: null, color: "text-amber-500" },
+        { id: "open_cases", label: "الحالات المفتوحة (بانتظار الفرز)", icon: Inbox, badge: pendingCases.length, color: "text-amber-600" },
+        { id: "in_progress_cases", label: "الحالات قيد التنفيذ الميداني", icon: Clock, badge: inProgressCases.length, color: "text-blue-600" },
+        { id: "review_cases", label: "الحالات التي تحتاج مراجعة", icon: Search, badge: reviewItems.length, color: "text-purple-600" },
+        { id: "closed_cases", label: "الحالات المغلقة", icon: CheckCircle2, badge: closedCases.length, color: "text-emerald-600" },
+        { id: "all_cases", label: "السجل العام المركزي", icon: Layers, badge: allCases.length, color: "text-slate-600" },
+      ],
+    },
+    {
+      group: "التهيئة وإعدادات المنظومة",
+      items: [
+        { id: "system_config", label: "⚙️ قائمة التهيئة والإعدادات المركزية", icon: Settings, badge: null, color: "text-[#D49A3D]" },
+        { id: "users", label: "كادر العمل والمستخدمين", icon: Users, badge: users.length, color: "text-[#682722]" },
+        { id: "dynamic_forms", label: "محرك النماذج المتطورة", icon: Sparkles, badge: null, color: "text-[#D49A3D]" },
+      ],
+    },
+    {
+      group: "التقارير والرقابة والحساب",
+      items: [
+        { id: "reports", label: "التقارير وطباعة PDF", icon: Sliders, badge: null, color: "text-blue-600" },
+        { id: "audit", label: "سجل التدقيق والرقابة", icon: History, badge: auditLogs.length, color: "text-slate-600" },
+        { id: "change_pin", label: "تغيير رمز المرور الشخصي", icon: KeyRound, badge: null, color: "text-[#682722]" },
+      ],
+    },
+  ];
+
+  return (
+    <div className="flex-1 flex flex-col md:flex-row relative min-h-[calc(100vh-5rem)]">
+      
+      {/* Toast Notification */}
+      {message && (
+        <div
+          className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 ${
+            message.type === "success"
+              ? "bg-emerald-600 text-white"
+              : "bg-[#682722] text-amber-50"
+          }`}
+        >
+          {message.type === "success" ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertTriangle className="w-5 h-5 flex-shrink-0" />}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      {/* Official PDF Report Modal */}
+      <OfficialPdfReportModal
+        isOpen={showPdfModal}
+        onClose={() => setShowPdfModal(false)}
+        cases={allCases}
+        departments={departments}
+        currentUser={currentUser}
+      />
+
+      {/* Sidebar Navigation */}
+      <aside
+        className={`${
+          sidebarOpen ? "w-full md:w-72" : "w-0 md:w-20"
+        } transition-all duration-300 bg-white border-l border-slate-200 flex flex-col justify-between flex-shrink-0 z-20 shadow-sm overflow-hidden`}
+      >
+        <div className="p-4 overflow-y-auto max-h-[calc(100vh-5rem)]">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+            <span className={`text-xs font-black text-[#1B1111] ${!sidebarOpen && "md:hidden"}`}>
+              لوحة الإدارة المركزية
+            </span>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500"
+              title="طي/توسيع القائمة"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {menuGroups.map((group, idx) => (
+              <div key={idx} className="space-y-1.5">
+                <div
+                  className={`text-[10px] font-black text-slate-400 px-3 uppercase tracking-wider ${
+                    !sidebarOpen && "md:hidden"
+                  }`}
+                >
+                  {group.group}
+                </div>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeMenu === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveMenu(item.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-black transition-all ${
+                        isActive
+                          ? "bg-[#1B1111] text-[#FFC217] shadow-md shadow-[#1B1111]/15"
+                          : "text-slate-600 hover:bg-[#FAF7F4] hover:text-[#1B1111]"
+                      }`}
+                      title={item.label}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#FFC217]" : item.color}`} />
+                        <span className={`${!sidebarOpen && "md:hidden"} truncate`}>{item.label}</span>
+                      </div>
+                      {item.badge !== null && item.badge > 0 && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                            isActive
+                              ? "bg-[#FFC217] text-[#1B1111]"
+                              : "bg-slate-100 text-slate-700"
+                          } ${!sidebarOpen && "md:hidden"}`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* User Card at bottom of sidebar */}
+        <div className={`p-4 border-t border-slate-100 bg-[#FAF7F4]/60 ${!sidebarOpen && "md:hidden"}`}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-[#D49A3D] text-[#1B1111] flex items-center justify-center font-black text-sm shadow-sm">
+              {currentUser?.full_name?.charAt(0) || "م"}
+            </div>
+            <div className="overflow-hidden">
+              <div className="text-xs font-black text-[#1B1111] truncate">{currentUser?.full_name}</div>
+              <div className="text-[10px] font-bold text-[#682722] truncate">
+                {currentUser?.role === "super_admin"
+                  ? "مدير عام المنظومة (Super Admin)"
+                  : currentUser?.role === "general_admin"
+                  ? "المدير العام للنظام"
+                  : "إدارة الإشراف والحوكمة"}
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl w-full">
+
+        {/* ============================================================== */}
+        {/* 1. 🛡️ PERMISSIONS MATRIX VIEW (مصفوفة توزيع الصلاحيات)         */}
+        {/* ============================================================== */}
+        {activeMenu === "permissions_matrix" && (
+          <PermissionsMatrixView
+            roles={roles}
+            permissionsMatrix={permissionsMatrix}
+            currentUser={currentUser}
+          />
+        )}
+
+        {/* ============================================================== */}
+        {/* 2. 🛡️ ROLES VIEW (الأدوار الوظيفية المخصصة)                   */}
+        {/* ============================================================== */}
+        {activeMenu === "roles" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-purple-600" />
+                  الأدوار الوظيفية والصلاحيات المخصصة ({roles.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">
+                  إنشاء وتخصيص الأدوار، وتحديد الإدارات والأقسام المصرح لكل دور بالاطلاع والعمل عليها
+                </p>
+              </div>
+              <button
+                onClick={handleOpenAddRole}
+                className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>إضافة دور وظيفي جديد</span>
+              </button>
+            </div>
+
+            {roles.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-3">
+                <Shield className="w-12 h-12 text-slate-300 mx-auto" />
+                <h4 className="text-sm font-black text-slate-700">لم يتم إنشاء أدوار وظيفية مخصصة حتى الآن</h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  يمكنك إنشاء أدوار مثل: مفتش نظافة خاص، فني صيانة تبريد، مشرف أغذية، وتحديد نطاق عمل كل دور بدقة.
+                </p>
+                <button
+                  onClick={handleOpenAddRole}
+                  className="px-4 py-2 bg-purple-600 text-white text-xs font-black rounded-xl inline-flex items-center gap-1.5"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>إنشاء أول دور الآن</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {roles.map((r) => {
+                  const isInspector = r.category === "inspector" || r.role_type === "inspector";
+                  const isField = r.category === "field_agent" || r.role_type === "field_agent";
+                  const isDisabled = r.status === "disabled";
+
+                  return (
+                    <div
+                      key={r.id}
+                      className={`bg-white p-5 rounded-3xl border shadow-sm space-y-3 transition-all ${
+                        isDisabled ? "opacity-60 border-slate-200 bg-slate-50/60" : "border-slate-200 hover:border-purple-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-sm text-[#1B1111]">{r.name}</span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                              isInspector
+                                ? "bg-blue-50 text-blue-800 border-blue-200"
+                                : isField
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                : "bg-purple-50 text-purple-800 border-purple-200"
+                            }`}
+                          >
+                            {isInspector ? "رقابي / تفتيشي 🔍" : isField ? "تنفيذي ميداني 🛠️" : "إشرافي إداري 🏢"}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleOpenEditRole(r)}
+                            className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                            title="تعديل الدور"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const res = await toggleCustomRoleStatusAction(r.id);
+                              if (res.success) showNotification("success", "تم تغيير حالة الدور بنجاح");
+                              else showNotification("error", res.error || "فشل تغيير الحالة");
+                            }}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              isDisabled ? "text-slate-400 hover:text-emerald-600" : "text-emerald-600 hover:text-amber-600"
+                            }`}
+                            title={isDisabled ? "تفعيل الدور" : "تعطيل الدور"}
+                          >
+                            <Power className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm(`هل أنت متأكد من حذف الدور الوظيفي (${r.name}) نهائياً؟`)) {
+                                const res = await deleteCustomRoleAction(r.id);
+                                if (res.success) showNotification("success", "تم حذف الدور بنجاح");
+                                else showNotification("error", res.error || "فشل الحذف");
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                            title="حذف الدور"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Scopes */}
+                      <div className="space-y-1.5 text-[11px] pt-2 border-t border-slate-100">
+                        <div className="flex items-center justify-between text-slate-600">
+                          <span className="font-bold">الإدارات المصرح بها:</span>
+                          <span className="font-black text-[#682722]">
+                            {r.allowed_departments === "all" || !r.allowed_departments ? "جميع الإدارات" : r.allowed_departments}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-slate-600">
+                          <span className="font-bold">الأقسام المصرح بها:</span>
+                          <span className="font-black text-[#682722]">
+                            {r.allowed_sections === "all" || !r.allowed_sections ? "جميع الأقسام" : r.allowed_sections}
+                          </span>
+                        </div>
+                      </div>
+
+                      {r.description && (
+                        <p className="text-xs text-slate-500 font-medium leading-relaxed bg-[#FAF7F4] p-2.5 rounded-xl border border-slate-100">
+                          {r.description}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 3. 🏷️ CATEGORIES VIEW (حالات عدم المطابقة المرتبطة بالإدارات)   */}
+        {/* ============================================================== */}
+        {activeMenu === "categories" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-rose-600" />
+                  بنك حالات عدم المطابقة ({categories.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">
+                  إدارة المخالفات وحالات عدم المطابقة وربط كل حالة بالإدارة والقسم المعني
+                </p>
+              </div>
+              <button
+                onClick={handleOpenAddCategory}
+                className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>إضافة حالة عدم مطابقة</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {categories.map((cat) => {
+                const isDisabled = cat.status === "disabled";
+                return (
+                  <div
+                    key={cat.id}
+                    className={`bg-white p-5 rounded-3xl border shadow-sm space-y-3 transition-all ${
+                      isDisabled ? "opacity-60 border-slate-200 bg-slate-50/60" : "border-slate-200 hover:border-rose-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-sm text-[#1B1111]">{cat.name}</span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                            cat.severity === "high"
+                              ? "bg-rose-50 text-rose-800 border-rose-200"
+                              : cat.severity === "medium"
+                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                              : "bg-slate-100 text-slate-800 border-slate-200"
+                          }`}
+                        >
+                          {cat.severity === "high" ? "حرج / عالي" : cat.severity === "medium" ? "متوسط" : "عادي"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleOpenEditCategory(cat)}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                          title="تعديل الحالة"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const res = await toggleCategoryStatusAction(cat.id);
+                            if (res.success) showNotification("success", "تم تغيير حالة التفعيل بنجاح");
+                            else showNotification("error", res.error || "فشل تغيير الحالة");
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            isDisabled ? "text-slate-400 hover:text-emerald-600" : "text-emerald-600 hover:text-amber-600"
+                          }`}
+                          title={isDisabled ? "تفعيل الحالة" : "تعطيل الحالة"}
+                        >
+                          <Power className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm(`هل أنت متأكد من حذف حالة (${cat.name})؟`)) {
+                              const res = await deleteCategoryAction(cat.id);
+                              if (res.success) showNotification("success", "تم حذف الحالة بنجاح");
+                              else showNotification("error", res.error || "فشل الحذف");
+                            }
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                          title="حذف الحالة"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-[11px] pt-2 border-t border-slate-100">
+                      <div className="flex items-center justify-between text-slate-600">
+                        <span className="font-bold">الإدارة المعنية:</span>
+                        <span className="font-black text-[#682722]">
+                          {cat.department_name && cat.department_code !== "all" ? cat.department_name : "جميع الإدارات (عام)"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-600">
+                        <span className="font-bold">القسم المعني:</span>
+                        <span className="font-black text-[#682722]">
+                          {cat.section_name && cat.section_code !== "all" ? cat.section_name : "جميع الأقسام (عام)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {cat.description && (
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed bg-[#FAF7F4] p-2.5 rounded-xl border border-slate-100">
+                        {cat.description}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 4. 📈 REPORTS VIEW (التقارير وتصدير PDF)                        */}
+        {/* ============================================================== */}
+        {activeMenu === "reports" && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-l from-[#1B1111] via-[#2A1C16] to-[#1B1111] text-white p-6 sm:p-8 rounded-3xl border-2 border-[#D49A3D]/40 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-[#FFC217]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+              <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#D49A3D] text-[#1B1111] rounded-2xl shadow-lg">
+                    <Printer className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-white">التقارير وطباعة المستندات الرسمية</h2>
+                    <p className="text-xs font-semibold text-amber-200/80 mt-1">
+                      طباعة تقارير حوكمة الجودة وحالات عدم المطابقة بهوية مطعم المراسيم المعتمدة وحفظها بصيغة PDF
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowPdfModal(true)}
+                    className="px-5 py-3 bg-gradient-to-r from-[#D49A3D] via-[#E5A93C] to-[#B87B28] hover:opacity-95 text-[#1B1111] font-black rounded-2xl text-xs shadow-xl flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95"
+                  >
+                    <Printer className="w-5 h-5" />
+                    <span>معاينة وطباعة تقرير PDF الرسمي</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Export Summary Card */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+              <h4 className="text-sm font-black text-[#1B1111] flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#D49A3D]" />
+                <span>خيارات التقارير المتاحة للمنظومة</span>
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-[#FAF7F4] border border-slate-200 space-y-2">
+                  <h5 className="font-black text-xs text-[#682722] flex items-center gap-2">
+                    <Printer className="w-4 h-4 text-[#D49A3D]" />
+                    <span>تقرير حالات عدم المطابقة الرسمي (PDF)</span>
+                  </h5>
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                    مستند رقابي رسمي يشمل شعار المراسيم، إحصائيات الجودة، جدول مفصل بالحالات والإجراءات المتخذة، وخانات التوقيع والاعتماد للقيادة العامة.
+                  </p>
+                  <button
+                    onClick={() => setShowPdfModal(true)}
+                    className="mt-2 text-xs font-black text-blue-600 hover:underline flex items-center gap-1"
+                  >
+                    <span>فتح المعاينة والطباعة الآن ←</span>
+                  </button>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#FAF7F4] border border-slate-200 space-y-2">
+                  <h5 className="font-black text-xs text-[#682722] flex items-center gap-2">
+                    <Download className="w-4 h-4 text-emerald-600" />
+                    <span>تصدير البيانات الشاملة (Excel)</span>
+                  </h5>
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                    تصدير ملف إكسل بكافة تفاصيل الحالات، التواريخ، والأدوار المكلفة لإجراء التحليلات الإحصائية المتقدمة.
+                  </p>
+                  <span className="text-[11px] font-bold text-slate-400">
+                    متاح للمستخدمين المصرح لهم بخاصية تصدير الإكسل.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 4.5 🌟 DYNAMIC FORMS BUILDER (محرك الاستمارات الذكية)          */}
+        {/* ============================================================== */}
+        {activeMenu === "dynamic_forms" && (
+          <div className="space-y-4">
+            <FormBuilder
+              departments={departments}
+              roles={roles}
+              users={users}
+            />
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 5. 📥 OPEN CASES (الحالات المفتوحة بانتظار الفرز)               */}
+        {/* ============================================================== */}
+        {activeMenu === "open_cases" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Inbox className="w-5 h-5 text-amber-600" />
+                  الحالات المفتوحة بانتظار فرز وتكليف الإدارة ({pendingCases.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">
+                  حدد الجهات أو الكوادر الميدانية المكلفة بالمعالجة مع كتابة التوجيهات
+                </p>
+              </div>
+            </div>
+
+            {pendingCases.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-2">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+                <h4 className="text-sm font-black text-slate-700">لا توجد حالات بانتظار الفرز حالياً</h4>
+                <p className="text-xs text-slate-400">جميع البلاغات الواردة تم إسنادها وتوجيهها للميدان.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pendingCases.map((c) => (
+                  <div key={c.id} className="bg-white rounded-3xl border border-[#D49A3D]/40 p-5 shadow-sm space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="px-3 py-1 rounded-xl text-xs font-black bg-amber-50 text-amber-900 border border-amber-200">
+                          #{c.case_number} ({c.internal_id})
+                        </span>
+                        <h4 className="font-black text-sm text-[#1B1111]">{c.nc_name}</h4>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400 font-mono font-bold">{c.obs_date} {c.obs_time}</span>
+                        {canDeleteCases && (
+                          <button
+                            onClick={() => handleDeleteCase(c)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                            title="حذف الحالة نهائياً"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span className="text-slate-400 font-bold block mb-1">الموقع / القسم:</span>
+                        <span className="font-black text-slate-800">{c.location_name}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-bold block mb-1">المفتش الراصد:</span>
+                        <span className="font-bold text-slate-700">{c.inspector_name}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="text-slate-400 font-bold block mb-1">الوصف التفصيلي:</span>
+                        <p className="p-3 bg-[#FAF7F4] rounded-2xl text-slate-800 font-semibold leading-relaxed">
+                          {c.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Dispatch Selector */}
+                    <div className="pt-3 border-t border-slate-100 space-y-3">
+                      <label className="block text-xs font-black text-[#1B1111]">
+                        اختر الجهة المكلفة أو الموظف المنفذ بالاسم:
+                      </label>
+
+                      {/* By Department */}
+                      <div className="flex flex-wrap gap-2">
+                        {departments.map((dept) => {
+                          const isSelected = (dispatchSelections[c.id] || []).includes(dept.code);
+                          return (
+                            <button
+                              key={dept.code}
+                              type="button"
+                              onClick={() => toggleDeptForCase(c.id, dept.code)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+                                isSelected
+                                  ? "bg-[#682722] text-white shadow-sm"
+                                  : "bg-[#FAF7F4] text-slate-700 hover:bg-slate-200"
+                              }`}
+                            >
+                              {isSelected && <Check className="w-3.5 h-3.5" />}
+                              <span>{dept.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* By Specific User */}
+                      {fieldRoles.length > 0 && (
+                        <div>
+                          <span className="text-[11px] font-bold text-slate-400 block mb-1.5">أو إسناد مباشر بالاسم للموظف:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {fieldRoles.map((u) => {
+                              const isSelected = (dispatchUserSelections[c.id] || []).includes(u.id);
+                              return (
+                                <button
+                                  key={u.id}
+                                  type="button"
+                                  onClick={() => toggleUserForCase(c.id, u.id)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
+                                    isSelected
+                                      ? "bg-[#D49A3D] text-[#1B1111] shadow-sm"
+                                      : "bg-white border border-slate-200 text-slate-700 hover:bg-amber-50"
+                                  }`}
+                                >
+                                  {isSelected && <Check className="w-3.5 h-3.5" />}
+                                  <span>{u.officerName}</span>
+                                  {u.jobTitle && <span className="text-[10px] opacity-75">({u.jobTitle})</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Instructions */}
+                      <div>
+                        <input
+                          type="text"
+                          value={dispatchInstructions[c.id] || ""}
+                          onChange={(e) =>
+                            setDispatchInstructions((prev) => ({ ...prev, [c.id]: e.target.value }))
+                          }
+                          placeholder="توجيهات إدارية للمنفذ (مثال: يرجى استبدال الزي، المعالجة خلال ساعتين...)"
+                          className="w-full h-10 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-[#FAF7F4] focus:outline-none focus:ring-2 focus:ring-[#D49A3D]/40"
+                        />
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          disabled={dispatchLoading[c.id]}
+                          onClick={() => handleDispatch(c)}
+                          className="px-5 py-2.5 bg-gradient-to-r from-[#D49A3D] to-[#E5A93C] text-[#1B1111] font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          <Send className="w-4 h-4 rotate-180" />
+                          <span>إسناد وتوجيه للميدان فوراً</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 6. 🕒 IN PROGRESS CASES (الحالات قيد التنفيذ الميداني)          */}
+        {/* ============================================================== */}
+        {activeMenu === "in_progress_cases" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  الحالات قيد التنفيذ الميداني ({inProgressCases.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">الحالات التي استلمها المنفذون وجارٍ معالجتها ميدانياً</p>
+              </div>
+            </div>
+
+            {inProgressCases.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 text-xs font-bold text-slate-400">
+                لا توجد حالات قيد التنفيذ حالياً
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {inProgressCases.map((c) => (
+                  <div key={c.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-black text-[#682722]">#{c.case_number} ({c.internal_id})</span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200">
+                          قيد المعالجة (جولة {c.current_round})
+                        </span>
+                        {canDeleteCases && (
+                          <button
+                            onClick={() => handleDeleteCase(c)}
+                            className="p-1 text-slate-400 hover:text-rose-600"
+                            title="حذف الحالة"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <h4 className="font-black text-sm text-[#1B1111]">{c.nc_name}</h4>
+                    <p className="text-xs text-slate-600 line-clamp-2">{c.description}</p>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-bold">
+                      <span>📍 {c.location_name}</span>
+                      <span className="text-[#682722]">👥 المكلف: {c.assignments_summary || c.assigned_roles}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 7. 🔍 REVIEW CASES (الحالات التي تحتاج مراجعة واعتماد)         */}
+        {/* ============================================================== */}
+        {activeMenu === "review_cases" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Search className="w-5 h-5 text-purple-600" />
+                  حالات تحتاج مراجعة واعتماد الإدارة ({reviewItems.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">
+                  مراجعة المعالجات الميدانية: اعتماد وإغلاق، أو رفض وإعادة استكمال، أو إغلاق قسري
+                </p>
+              </div>
+            </div>
+
+            {reviewItems.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 text-xs font-bold text-slate-400">
+                لا توجد ردود جديدة تحتاج للمراجعة حالياً
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviewItems.map((item) => (
+                  <div key={item.exec_row_id} className="bg-white rounded-3xl border border-purple-200 p-5 shadow-sm space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="px-3 py-1 rounded-xl text-xs font-black bg-purple-50 text-purple-900 border border-purple-200">
+                          #{item.case_number} (جولة {item.round})
+                        </span>
+                        <h4 className="font-black text-sm text-[#1B1111]">{item.nc_name}</h4>
+                      </div>
+                      <span className="text-xs text-slate-400 font-mono font-bold">{item.exec_time}</span>
+                    </div>
+
+                    <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-black text-emerald-950">
+                        <span>إجراء المنفذ الميداني ({item.executor_name} - {item.executor_role}):</span>
+                      </div>
+                      <p className="text-xs text-slate-800 font-semibold leading-relaxed">
+                        {item.action_taken}
+                      </p>
+                      {item.exec_notes && (
+                        <p className="text-[11px] text-slate-500 italic">ملاحظات المنفذ: {item.exec_notes}</p>
+                      )}
+                    </div>
+
+                    {/* Action Decision Buttons */}
+                    <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(item)}
+                        disabled={reviewLoading[item.assignment_id]}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>اعتماد الإجراء وإغلاق الحالة</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReassignDepts([item.role_code]);
+                          setActiveReviewModal({ type: "reassign", item });
+                        }}
+                        className="px-4 py-2 bg-[#682722] hover:bg-[#7D2F28] text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span>رفض وطلب استكمال (Round +1)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveReviewModal({ type: "close", item })}
+                        className="px-4 py-2 bg-[#1B1111] hover:bg-[#2A1C16] text-[#FFC217] font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+                      >
+                        <AlertOctagon className="w-4 h-4" />
+                        <span>إغلاق إداري نهائي</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 8. ✅ CLOSED CASES (الحالات المغلقة والتغذية الراجعة)           */}
+        {/* ============================================================== */}
+        {activeMenu === "closed_cases" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  أرشيف الحالات المغلقة والمعتمدة ({closedCases.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">الحالات التي اكتملت معالجتها واعتمدتها الإدارة بشكل نهائي</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {closedCases.map((c) => (
+                <div key={c.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-black text-emerald-800">#{c.case_number} ({c.internal_id})</span>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        مغلق ومعتمد
+                      </span>
+                      {canDeleteCases && (
+                        <button
+                          onClick={() => handleDeleteCase(c)}
+                          className="p-1 text-slate-400 hover:text-rose-600"
+                          title="حذف الحالة"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <h4 className="font-black text-sm text-[#1B1111]">{c.nc_name}</h4>
+                  <p className="text-xs text-slate-600 line-clamp-2">{c.description}</p>
+
+                  {c.closed_feedback && (
+                    <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl text-[11px] text-amber-900 font-semibold">
+                      💡 التوجيه الإداري: {c.closed_feedback}
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-semibold">
+                    <span>📍 {c.location_name}</span>
+                    <span>{c.closed_at ? c.closed_at.split("T")[0] : c.obs_date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 9. 🗂️ ALL CASES (السجل العام المركزي)                          */}
+        {/* ============================================================== */}
+        {activeMenu === "all_cases" && (
+          <div className="space-y-4">
+            <div className="bg-white p-4 rounded-3xl border border-[#D49A3D]/30 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="relative w-full md:w-80">
+                <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="بحث برقم الحالة، الموقع، نوع المخالفة..."
+                  value={caseSearchQuery}
+                  onChange={(e) => setCaseSearchQuery(e.target.value)}
+                  className="w-full pl-3 pr-10 py-2.5 text-xs font-bold rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#D49A3D]/30"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1">
+                {[
+                  { id: "all", label: "الكل" },
+                  { id: "pending_assignment", label: "بانتظار الفرز" },
+                  { id: "assigned", label: "قيد الميدان" },
+                  { id: "pending_review", label: "بانتظار المراجعة" },
+                  { id: "closed", label: "مغلقة" },
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    onClick={() => setCaseFilterStatus(pill.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap ${
+                      caseFilterStatus === pill.id ? "bg-[#1B1111] text-[#FFC217]" : "bg-[#FAF7F4] text-slate-700"
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-[#D49A3D]/30 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-[#FAF7F4] text-[#1B1111] font-black border-b border-slate-200">
+                    <tr>
+                      <th className="py-3 px-4">رقم الحالة</th>
+                      <th className="py-3 px-4">الموقع / القسم</th>
+                      <th className="py-3 px-4">حالة عدم المطابقة</th>
+                      <th className="py-3 px-4">الوصف</th>
+                      <th className="py-3 px-4">المفتش</th>
+                      <th className="py-3 px-4">الحالة</th>
+                      <th className="py-3 px-4">الجولة</th>
+                      <th className="py-3 px-4">التاريخ والوقت</th>
+                      {canDeleteCases && <th className="py-3 px-4 text-center">إجراء</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
+                    {allCases
+                      .filter((c) => {
+                        const matchStatus = caseFilterStatus === "all" || c.status === caseFilterStatus;
+                        const q = caseSearchQuery.trim().toLowerCase();
+                        const matchSearch =
+                          q === "" ||
+                          c.case_number?.toString().includes(q) ||
+                          c.location_name?.toLowerCase().includes(q) ||
+                          c.nc_name?.toLowerCase().includes(q) ||
+                          c.description?.toLowerCase().includes(q);
+                        return matchStatus && matchSearch;
+                      })
+                      .map((c) => (
+                        <tr key={c.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-4 font-black">#{c.case_number}</td>
+                          <td className="py-3 px-4">{c.location_name}</td>
+                          <td className="py-3 px-4 font-black text-[#1B1111]">{c.nc_name}</td>
+                          <td className="py-3 px-4 max-w-xs truncate">{c.description}</td>
+                          <td className="py-3 px-4 text-slate-500">{c.inspector_name}</td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900">
+                              {c.status === "closed" ? "مغلقة" : c.status === "assigned" ? "قيد التنفيذ" : c.status === "pending_review" ? "مراجعة" : "بانتظار الفرز"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono font-bold">R{c.current_round}</td>
+                          <td className="py-3 px-4 font-mono text-[11px] text-slate-400">{c.obs_date} {c.obs_time}</td>
+                          {canDeleteCases && (
+                            <td className="py-3 px-4 text-center">
+                              <button
+                                onClick={() => handleDeleteCase(c)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                                title="حذف الحالة نهائياً"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 10. 🏢 DEPARTMENTS VIEW (الإدارات التشغيلية)                   */}
+        {/* ============================================================== */}
+        {activeMenu === "departments" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-[#D49A3D]" />
+                  الإدارات التشغيلية ({departments.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">إدارة الهيكل الإداري الرئيسي لمنظومة مطاعم المراسيم</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingDept(null);
+                  setShowAddDeptModal(true);
+                }}
+                className="px-4 py-2 bg-[#D49A3D] hover:bg-[#E5A93C] text-[#1B1111] font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>إضافة إدارة جديدة</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {departments.map((dept) => (
+                <div key={dept.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-sm text-[#1B1111]">{dept.name}</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={async () => {
+                          const res = await toggleDepartmentStatusAction(dept.id);
+                          if (res.success) showNotification("success", "تم تغيير حالة الإدارة");
+                          else showNotification("error", res.error || "فشل");
+                        }}
+                        className={`p-1.5 rounded-lg ${dept.status === "disabled" ? "text-slate-400" : "text-emerald-600"}`}
+                        title="تبديل الحالة"
+                      >
+                        <Power className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`هل أنت متأكد من حذف إدارة (${dept.name})؟`)) {
+                            const res = await deleteDepartmentAction(dept.id);
+                            if (res.success) showNotification("success", "تم حذف الإدارة بنجاح");
+                            else showNotification("error", res.error || "فشل الحذف");
+                          }
+                        }}
+                        className="text-slate-300 hover:text-rose-600 p-1.5"
+                        title="حذف الإدارة"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono font-bold">{dept.code}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 11. 📂 SECTIONS VIEW (الأقسام والمواقع التشغيلية)               */}
+        {/* ============================================================== */}
+        {activeMenu === "sections" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <FolderTree className="w-5 h-5 text-[#D49A3D]" />
+                  الأقسام والمواقع التشغيلية ({sections.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">إدارة الأقسام التابعة لكل إدارة والمواقع الميدانية للتفتيش</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingSection(null);
+                  setShowAddSectionModal(true);
+                }}
+                className="px-4 py-2 bg-[#D49A3D] hover:bg-[#E5A93C] text-[#1B1111] font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>إضافة قسم جديد</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {sections.map((sec) => (
+                <div key={sec.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-sm text-[#1B1111]">{sec.name}</span>
+                    <button
+                      onClick={async () => {
+                        if (confirm(`هل أنت متأكد من حذف قسم (${sec.name})؟`)) {
+                          const res = await deleteSectionAction(sec.id);
+                          if (res.success) showNotification("success", "تم حذف القسم بنجاح");
+                          else showNotification("error", res.error || "فشل الحذف");
+                        }
+                      }}
+                      className="text-slate-300 hover:text-rose-600 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="text-xs text-slate-500 font-bold">الإدارة: {sec.department_name || sec.department_code}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 12. 👥 USERS VIEW (المستخدمين وكادر العمل)                      */}
+        {/* ============================================================== */}
+        {activeMenu === "users" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+                  <Users className="w-5 h-5 text-[#682722]" />
+                  إدارة كادر العمل والمستخدمين ({users.length})
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold">إدارة حسابات النظام برموز PIN المكونة من 4 أرقام وتعيين المسميات والصلاحيات</p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingUser(null);
+                  setShowAddUserModal(true);
+                }}
+                className="px-4 py-2.5 bg-[#682722] hover:bg-[#7D2F28] text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>إضافة مستخدم جديد</span>
+              </button>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-[#FAF7F4] text-[#1B1111] font-black border-b border-slate-200">
+                    <tr>
+                      <th className="py-3 px-4">الاسم الكامل</th>
+                      <th className="py-3 px-4">المسمى الوظيفي</th>
+                      <th className="py-3 px-4">الصلاحية / الدور</th>
+                      <th className="py-3 px-4">الإدارة التابع لها</th>
+                      <th className="py-3 px-4">رمز المرور (PIN)</th>
+                      <th className="py-3 px-4 text-center">إكسل</th>
+                      <th className="py-3 px-4 text-center">الحالة</th>
+                      <th className="py-3 px-4 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
+                    {users.map((u) => {
+                      const isProtected = u.is_protected === 1;
+                      const isDisabled = u.status === "disabled";
+
+                      return (
+                        <tr key={u.id} className={`hover:bg-slate-50 ${isProtected ? "bg-amber-50/40" : ""}`}>
+                          <td className="py-3 px-4 font-black text-[#1B1111] flex items-center gap-2">
+                            <User className="w-4 h-4 text-slate-400" />
+                            <span>{u.full_name}</span>
+                            {isProtected && (
+                              <span className="text-[10px] bg-[#D49A3D] text-[#1B1111] px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                <Lock className="w-3 h-3" /> حساب محمي
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 font-bold text-slate-600">{u.job_title || "-"}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col gap-1 items-start">
+                              {u.custom_role_name && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-900 border border-purple-300">
+                                  🛡️ {u.custom_role_name}
+                                </span>
+                              )}
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                u.role === "super_admin"
+                                  ? "bg-purple-100 text-purple-900 border border-purple-300"
+                                  : u.role === "general_admin"
+                                  ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                  : u.role === "admin"
+                                  ? "bg-blue-100 text-blue-900 border border-blue-300"
+                                  : u.role === "inspector"
+                                  ? "bg-indigo-100 text-indigo-900 border border-indigo-300"
+                                  : "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                              }`}>
+                                {u.role === "super_admin" ? "مدير عام المنظومة" : u.role === "general_admin" ? "المدير العام" : u.role === "admin" ? "إداري" : u.role === "inspector" ? "مفتش جودة" : "منفذ ميداني"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 font-bold text-slate-700">{u.department_name}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+                                {u.pin_code}
+                              </span>
+                              {!isProtected && (
+                                <button
+                                  onClick={() => setChangePinModalUser(u)}
+                                  className="text-[11px] text-blue-600 hover:underline font-bold"
+                                  title="تغيير رمز المرور"
+                                >
+                                  رمز
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={async () => {
+                                const res = await toggleUserExcelAction(u.id);
+                                if (res.success) showNotification("success", "تم تحديث صلاحية الإكسل");
+                                else showNotification("error", res.error || "فشل");
+                              }}
+                              className={`p-1 rounded-lg ${u.can_export_excel === 1 ? "text-emerald-600" : "text-slate-300"}`}
+                              title={u.can_export_excel === 1 ? "مصرح له بتصدير الإكسل" : "غير مصرح بتصدير الإكسل"}
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {!isProtected ? (
+                              <button
+                                onClick={async () => {
+                                  const res = await toggleUserStatusAction(u.id);
+                                  if (res.success) showNotification("success", "تم تعديل حالة المستخدم");
+                                  else showNotification("error", res.error || "فشل");
+                                }}
+                                className={`p-1.5 rounded-lg ${isDisabled ? "text-slate-400" : "text-emerald-600"}`}
+                                title={isDisabled ? "تفعيل المستخدم" : "تعطيل المستخدم"}
+                              >
+                                <Power className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 font-bold">دائم</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              {!isProtected && (
+                                <button
+                                  onClick={() => handleOpenEditUser(u)}
+                                  className="p-1 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                                  title="تعديل بيانات المستخدم والدور"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                              )}
+                              {!isProtected && (
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`هل أنت متأكد من حذف المستخدم (${u.full_name})؟`)) {
+                                      const res = await deleteUserAction(u.id);
+                                      if (res.success) showNotification("success", "تم حذف المستخدم بنجاح");
+                                      else showNotification("error", res.error || "فشل الحذف");
+                                    }
+                                  }}
+                                  className="p-1 text-slate-300 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                                  title="حذف المستخدم"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 13. 🔑 CHANGE PERSONAL PIN                                     */}
+        {/* ============================================================== */}
+        {activeMenu === "change_pin" && (
+          <div className="max-w-md mx-auto bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2 border-b pb-3">
+              <KeyRound className="w-5 h-5 text-[#682722]" />
+              <span>تغيير رمز المرور الشخصي (PIN)</span>
+            </h3>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (newPinInput !== confirmPinInput) {
+                  showNotification("error", "رمز المرور الجديد وتأكيده غير متطابقين");
+                  return;
+                }
+                const res = await changeMyPinAction(currentPinInput, newPinInput);
+                if (res.success) {
+                  showNotification("success", "تم تغيير رمز المرور الخاص بك بنجاح!");
+                  setCurrentPinInput("");
+                  setNewPinInput("");
+                  setConfirmPinInput("");
+                } else {
+                  showNotification("error", res.error || "فشل تغيير الرمز");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">رمز المرور الحالي (4 أرقام) *</label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={currentPinInput}
+                  onChange={(e) => setCurrentPinInput(e.target.value)}
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-mono text-center text-base font-black"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">رمز المرور الجديد (4 أرقام) *</label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={newPinInput}
+                  onChange={(e) => setNewPinInput(e.target.value)}
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-mono text-center text-base font-black"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">تأكيد الرمز الجديد *</label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={confirmPinInput}
+                  onChange={(e) => setConfirmPinInput(e.target.value)}
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-mono text-center text-base font-black"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full h-11 bg-[#682722] hover:bg-[#7D2F28] text-white font-black rounded-xl text-xs transition-all shadow-md"
+              >
+                تحديث رمز المرور
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* 14. 📜 AUDIT LOGS                                             */}
+        {/* ============================================================== */}
+        {activeMenu === "audit" && (
+          <div className="space-y-4">
+            <h3 className="text-base font-black text-[#1B1111] flex items-center gap-2">
+              <History className="w-5 h-5 text-slate-600" />
+              سجل التدقيق والحوكمة الرقمية ({auditLogs.length})
+            </h3>
+            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-[#FAF7F4] text-[#1B1111] font-black border-b">
+                    <tr>
+                      <th className="py-3 px-4">رقم الحالة</th>
+                      <th className="py-3 px-4">نوع الإجراء</th>
+                      <th className="py-3 px-4">المسؤول</th>
+                      <th className="py-3 px-4">التفاصيل</th>
+                      <th className="py-3 px-4">التوقيت</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
+                    {auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50">
+                        <td className="py-3 px-4 font-black font-mono">#{log.case_number}</td>
+                        <td className="py-3 px-4">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-900">
+                            {log.event_type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">{log.actor_name}</td>
+                        <td className="py-3 px-4 max-w-md">{log.details}</td>
+                        <td className="py-3 px-4 font-mono text-[11px] text-slate-400">{log.created_at}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* ============================================================== */}
+      {/* 🛠️ MODALS                                                     */}
+      {/* ============================================================== */}
+
+      {/* MODAL: ADD / EDIT ROLE */}
+      {showRoleModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-4 border border-purple-200">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <Shield className="w-5 h-5 text-purple-600" />
+                <span>{editingRole ? "تعديل الدور الوظيفي" : "إضافة دور وظيفي جديد"}</span>
+              </h4>
+              <button onClick={() => setShowRoleModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+
+            <form onSubmit={handleSaveRole} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-black text-slate-800 mb-1">مسمى الدور الوظيفي *</label>
+                <input
+                  type="text"
+                  required
+                  value={roleFormName}
+                  onChange={(e) => setRoleFormName(e.target.value)}
+                  placeholder="مثال: مفتش جودة الأغذية، فني صيانة التبريد، مشرف الصالة..."
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">نوع الصلاحية الأساسية *</label>
+                <select
+                  value={roleFormCategory}
+                  onChange={(e: any) => setRoleFormCategory(e.target.value)}
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                  <option value="inspector">رقابي وتفتيشي (مفتش جودة) 🔍</option>
+                  <option value="field_agent">تنفيذي ميداني (معالجة وتنفيذ مهام) 🛠️</option>
+                  <option value="admin">إشرافي وإداري (فرز واعتماد) 🏢</option>
+                </select>
+              </div>
+
+              {/* Allowed Departments Selection */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-black text-slate-800">الإدارات المصرح بها:</label>
+                  <label className="flex items-center gap-1.5 cursor-pointer font-bold text-purple-700">
+                    <input
+                      type="checkbox"
+                      checked={roleFormAllDepts}
+                      onChange={(e) => {
+                        setRoleFormAllDepts(e.target.checked);
+                        if (e.target.checked) setRoleFormSelectedDepts([]);
+                      }}
+                    />
+                    <span>جميع الإدارات</span>
+                  </label>
+                </div>
+
+                {!roleFormAllDepts && (
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 max-h-32 overflow-y-auto">
+                    {departments.map((d) => {
+                      const isChecked = roleFormSelectedDepts.includes(d.code);
+                      return (
+                        <label key={d.code} className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setRoleFormSelectedDepts([...roleFormSelectedDepts, d.code]);
+                              } else {
+                                setRoleFormSelectedDepts(roleFormSelectedDepts.filter((c) => c !== d.code));
+                              }
+                            }}
+                          />
+                          <span>{d.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Allowed Sections Selection */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-black text-slate-800">الأقسام المصرح بها:</label>
+                  <label className="flex items-center gap-1.5 cursor-pointer font-bold text-purple-700">
+                    <input
+                      type="checkbox"
+                      checked={roleFormAllSections}
+                      onChange={(e) => {
+                        setRoleFormAllSections(e.target.checked);
+                        if (e.target.checked) setRoleFormSelectedSections([]);
+                      }}
+                    />
+                    <span>جميع الأقسام</span>
+                  </label>
+                </div>
+
+                {!roleFormAllSections && (
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 max-h-32 overflow-y-auto">
+                    {sections.map((s) => {
+                      const isChecked = roleFormSelectedSections.includes(s.code);
+                      return (
+                        <label key={s.code} className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setRoleFormSelectedSections([...roleFormSelectedSections, s.code]);
+                              } else {
+                                setRoleFormSelectedSections(roleFormSelectedSections.filter((c) => c !== s.code));
+                              }
+                            }}
+                          />
+                          <span>{s.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الوصف والاختصاصات</label>
+                <textarea
+                  rows={2}
+                  value={roleFormDesc}
+                  onChange={(e) => setRoleFormDesc(e.target.value)}
+                  placeholder="وصف مهام هذا الدور وصلاحياته الميدانية..."
+                  className="w-full p-2.5 bg-[#FAF7F4] border rounded-xl font-semibold resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowRoleModal(false)} className="px-4 py-2 rounded-xl text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-purple-600 text-white rounded-xl font-black shadow-md hover:bg-purple-700">
+                  {editingRole ? "تحديث الدور" : "حفظ الدور الجديد"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT CATEGORY (حالات عدم المطابقة) */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-4 border border-rose-200">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <Tag className="w-5 h-5 text-rose-600" />
+                <span>{editingCategory ? "تعديل حالة عدم المطابقة" : "إضافة حالة عدم مطابقة جديدة"}</span>
+              </h4>
+              <button onClick={() => setShowCategoryModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-black text-slate-800 mb-1">اسم حالة عدم المطابقة *</label>
+                <input
+                  type="text"
+                  required
+                  value={catFormName}
+                  onChange={(e) => setCatFormName(e.target.value)}
+                  placeholder="مثال: عدم ارتداء القفازات، سوء حفظ المواد الغذائية، تسرب مياه..."
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-rose-400"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">مستوى الخطورة *</label>
+                <select
+                  value={catFormSeverity}
+                  onChange={(e: any) => setCatFormSeverity(e.target.value)}
+                  className="w-full h-11 px-3 bg-[#FAF7F4] border rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-rose-400"
+                >
+                  <option value="low">عادي (Low / Normal)</option>
+                  <option value="medium">متوسط (Medium)</option>
+                  <option value="high">حرج / عالي الخطورة (High Severity)</option>
+                </select>
+              </div>
+
+              {/* Department Linking (One or More) */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-black text-slate-800">الإدارات المرتبطة بالحالة:</label>
+                  <label className="flex items-center gap-1.5 cursor-pointer font-bold text-rose-700">
+                    <input
+                      type="checkbox"
+                      checked={catFormAllDepts}
+                      onChange={(e) => {
+                        setCatFormAllDepts(e.target.checked);
+                        if (e.target.checked) setCatFormSelectedDepts([]);
+                      }}
+                    />
+                    <span>جميع الإدارات (عامة)</span>
+                  </label>
+                </div>
+
+                {!catFormAllDepts && (
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 max-h-32 overflow-y-auto">
+                    {departments.map((d) => {
+                      const isChecked = catFormSelectedDepts.includes(d.code);
+                      return (
+                        <label key={d.code} className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setCatFormSelectedDepts([...catFormSelectedDepts, d.code]);
+                              } else {
+                                setCatFormSelectedDepts(catFormSelectedDepts.filter((c) => c !== d.code));
+                              }
+                            }}
+                          />
+                          <span>{d.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Section Linking (One or More) */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-black text-slate-800">الأقسام والمواقع المرتبطة بها:</label>
+                  <label className="flex items-center gap-1.5 cursor-pointer font-bold text-rose-700">
+                    <input
+                      type="checkbox"
+                      checked={catFormAllSections}
+                      onChange={(e) => {
+                        setCatFormAllSections(e.target.checked);
+                        if (e.target.checked) setCatFormSelectedSections([]);
+                      }}
+                    />
+                    <span>جميع الأقسام</span>
+                  </label>
+                </div>
+
+                {!catFormAllSections && (
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 max-h-32 overflow-y-auto">
+                    {sections.map((s) => {
+                      const isChecked = catFormSelectedSections.includes(s.code);
+                      return (
+                        <label key={s.code} className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setCatFormSelectedSections([...catFormSelectedSections, s.code]);
+                              } else {
+                                setCatFormSelectedSections(catFormSelectedSections.filter((c) => c !== s.code));
+                              }
+                            }}
+                          />
+                          <span>{s.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الوصف والإرشادات</label>
+                <textarea
+                  rows={2}
+                  value={catFormDesc}
+                  onChange={(e) => setCatFormDesc(e.target.value)}
+                  placeholder="وصف تفصيلي للحالة ومعايير التحقق منها في الميدان..."
+                  className="w-full p-2.5 bg-[#FAF7F4] border rounded-xl font-semibold resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowCategoryModal(false)} className="px-4 py-2 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black shadow-md">
+                  {editingCategory ? "تحديث الحالة" : "حفظ الحالة في البنك"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD DEPARTMENT */}
+      {showAddDeptModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-[#D49A3D]" />
+                <span>إضافة إدارة تشغيلية جديدة</span>
+              </h4>
+              <button onClick={() => setShowAddDeptModal(false)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+                const res = await createDepartmentAction(name);
+                if (res.success) {
+                  showNotification("success", "تمت إضافة الإدارة بنجاح!");
+                  setShowAddDeptModal(false);
+                } else {
+                  showNotification("error", res.error || "فشل الحفظ");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">اسم الإدارة *</label>
+                <input name="name" required placeholder="مثال: إدارة الإنتاج والمطابخ، إدارة الصيانة..." className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold" />
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowAddDeptModal(false)} className="px-4 py-2 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-[#D49A3D] text-[#1B1111] rounded-xl font-black shadow-sm">حفظ الإدارة</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD SECTION */}
+      {showAddSectionModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <FolderTree className="w-5 h-5 text-[#D49A3D]" />
+                <span>إضافة قسم جديد مرتبط بإدارة</span>
+              </h4>
+              <button onClick={() => setShowAddSectionModal(false)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const deptCode = (form.elements.namedItem("deptCode") as HTMLSelectElement).value;
+                const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+                const res = await createSectionAction(deptCode, name);
+                if (res.success) {
+                  showNotification("success", "تمت إضافة القسم بنجاح!");
+                  setShowAddSectionModal(false);
+                } else {
+                  showNotification("error", res.error || "فشل الحفظ");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الإدارة التابع لها *</label>
+                <select name="deptCode" required className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold">
+                  <option value="">-- اختر الإدارة الأم --</option>
+                  {departments.map((d) => (
+                    <option key={d.code} value={d.code}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">اسم القسم أو الموقع *</label>
+                <input name="name" required placeholder="مثال: قسم تجهيز اللحوم، صالة 1، مستودع الجاف..." className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold" />
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowAddSectionModal(false)} className="px-4 py-2 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-[#D49A3D] text-[#1B1111] rounded-xl font-black shadow-sm">حفظ القسم</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD USER */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <Users className="w-5 h-5 text-[#682722]" />
+                <span>إضافة مستخدم جديد للنظام</span>
+              </h4>
+              <button onClick={() => setShowAddUserModal(false)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const formData = new FormData(form);
+                const res = await createUserAction(formData);
+                if (res.success) {
+                  showNotification("success", "تمت إضافة المستخدم بنجاح!");
+                  setShowAddUserModal(false);
+                } else {
+                  showNotification("error", res.error || "فشل الحفظ");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الاسم الكامل *</label>
+                <input name="full_name" required placeholder="اسم الموظف الثلاثي..." className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold" />
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">المسمى الوظيفي</label>
+                <input name="job_title" placeholder="مثال: شيف مقبلات، مسؤول صيانة التبريد..." className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold" />
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">رمز المرور (PIN - 4 أرقام) *</label>
+                <input name="pin_code" required maxLength={4} pattern="\d{4}" placeholder="مثال: 5544" className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-mono font-black text-center text-sm" />
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الدور الوظيفي المخصص (اختياري)</label>
+                <select
+                  name="custom_role_id"
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold text-purple-900"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val && val !== "none") {
+                      const selectedCrole = roles.find((r) => String(r.id) === val);
+                      if (selectedCrole) {
+                        const roleSelect = (e.target.form?.elements.namedItem("role") as HTMLSelectElement);
+                        if (roleSelect) {
+                          roleSelect.value = selectedCrole.category || selectedCrole.role_type || "field_agent";
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <option value="none">-- بدون دور مخصص (استخدام الدور الأساسي) --</option>
+                  {roles.filter((r: any) => r.status !== "disabled").map((r: any) => (
+                    <option key={r.id} value={r.id}>
+                      🛡️ {r.name} ({r.category === "inspector" ? "مفتش جودة" : r.category === "admin" ? "إشرافي إداري" : "منفذ ميداني"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الصلاحية / الدور الأساسي *</label>
+                <select name="role" required className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold">
+                  <option value="field_agent">منفذ ميداني (Field Agent)</option>
+                  <option value="inspector">مفتش جودة ورقابة (Inspector)</option>
+                  <option value="admin">مشرف / مدير إدارة (Admin)</option>
+                  <option value="general_admin">المدير العام للنظام (General Admin)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الإدارة التابع لها *</label>
+                <select name="department_code" required className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold">
+                  <option value="">-- اختر الإدارة --</option>
+                  {departments.map((d) => (
+                    <option key={d.code} value={d.code}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <input type="checkbox" name="can_export_excel" value="1" id="excel_perm" />
+                <label htmlFor="excel_perm" className="font-bold text-slate-700 cursor-pointer">منح صلاحية تصدير تقارير الإكسل</label>
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowAddUserModal(false)} className="px-4 py-2 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-[#682722] text-white rounded-xl font-black shadow-sm">حفظ المستخدم</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT USER */}
+      {showEditUserModal && editingUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-black text-base text-[#1B1111] flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-blue-600" />
+                <span>تعديل بيانات المستخدم ({editingUser.full_name})</span>
+              </h4>
+              <button onClick={() => setShowEditUserModal(false)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const formData = new FormData(form);
+                const res = await updateUserAction(editingUser.id, formData);
+                if (res.success) {
+                  showNotification("success", "تم تعديل بيانات المستخدم بنجاح!");
+                  setShowEditUserModal(false);
+                } else {
+                  showNotification("error", res.error || "فشل تعديل المستخدم");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الاسم الكامل *</label>
+                <input
+                  name="full_name"
+                  required
+                  value={userFormName}
+                  onChange={(e) => setUserFormName(e.target.value)}
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold"
+                />
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">المسمى الوظيفي</label>
+                <input
+                  name="job_title"
+                  value={userFormJobTitle}
+                  onChange={(e) => setUserFormJobTitle(e.target.value)}
+                  placeholder="مثال: شيف مقبلات، مسؤول صيانة التبريد..."
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold"
+                />
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الدور الوظيفي المخصص</label>
+                <select
+                  name="custom_role_id"
+                  value={userFormCustomRoleId}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setUserFormCustomRoleId(val);
+                    if (val && val !== "none") {
+                      const selectedCrole = roles.find((r) => String(r.id) === val);
+                      if (selectedCrole) {
+                        setUserFormRole(selectedCrole.category || selectedCrole.role_type || "field_agent");
+                      }
+                    }
+                  }}
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold text-purple-900"
+                >
+                  <option value="none">-- بدون دور مخصص (استخدام الدور الأساسي) --</option>
+                  {roles.filter((r: any) => r.status !== "disabled").map((r: any) => (
+                    <option key={r.id} value={r.id}>
+                      🛡️ {r.name} ({r.category === "inspector" ? "مفتش جودة" : r.category === "admin" ? "إشرافي إداري" : "منفذ ميداني"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الصلاحية / الدور الأساسي *</label>
+                <select
+                  name="role"
+                  required
+                  value={userFormRole}
+                  onChange={(e) => setUserFormRole(e.target.value)}
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold"
+                >
+                  <option value="field_agent">منفذ ميداني (Field Agent)</option>
+                  <option value="inspector">مفتش جودة ورقابة (Inspector)</option>
+                  <option value="admin">مشرف / مدير إدارة (Admin)</option>
+                  <option value="general_admin">المدير العام للنظام (General Admin)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الإدارة التابع لها *</label>
+                <select
+                  name="department_code"
+                  required
+                  value={userFormDept}
+                  onChange={(e) => setUserFormDept(e.target.value)}
+                  className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-bold"
+                >
+                  <option value="">-- اختر الإدارة --</option>
+                  {departments.map((d) => (
+                    <option key={d.code} value={d.code}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  name="can_export_excel"
+                  value="1"
+                  id="edit_excel_perm"
+                  checked={userFormCanExcel}
+                  onChange={(e) => setUserFormCanExcel(e.target.checked)}
+                />
+                <label htmlFor="edit_excel_perm" className="font-bold text-slate-700 cursor-pointer">منح صلاحية تصدير تقارير الإكسل</label>
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setShowEditUserModal(false)} className="px-4 py-2 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl font-black shadow-sm">تحديث المستخدم</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: CHANGE PIN FOR USER */}
+      {changePinModalUser && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <h4 className="font-black text-sm text-[#1B1111]">تغيير رمز المرور لـ ({changePinModalUser.full_name})</h4>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const newPin = (form.elements.namedItem("new_pin") as HTMLInputElement).value;
+                const res = await changeUserPinAction(changePinModalUser.id, newPin);
+                if (res.success) {
+                  showNotification("success", "تم تغيير رمز المرور بنجاح!");
+                  setChangePinModalUser(null);
+                } else {
+                  showNotification("error", res.error || "فشل التغيير");
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-800 mb-1">الرمز الجديد (4 أرقام) *</label>
+                <input name="new_pin" required maxLength={4} pattern="\d{4}" className="w-full h-10 px-3 bg-[#FAF7F4] border rounded-xl font-mono font-black text-center" />
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setChangePinModalUser(null)} className="px-3 py-1.5 text-slate-600 font-bold">إلغاء</button>
+                <button type="submit" className="px-4 py-1.5 bg-blue-600 text-white rounded-xl font-black">حفظ</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* REVIEW MODAL (REASSIGN / CLOSE) */}
+      {activeReviewModal && activeReviewModal.type === "reassign" && (
+        <div className="fixed inset-0 z-50 bg-[#1B1111]/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FAF7F4] rounded-[2.5rem] max-w-lg w-full p-6 shadow-2xl space-y-4 border-2 border-[#D49A3D]/40">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h4 className="text-base font-black text-[#682722] flex items-center gap-2">
+                <RotateCcw className="w-5 h-5 text-amber-600" />
+                <span>رفض المعالجة وإعادة الإسناد (Round Bump)</span>
+              </h4>
+              <button onClick={() => setActiveReviewModal(null)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <div className="bg-[#FAF3F3] border border-[#682722]/30 p-3.5 rounded-2xl text-xs space-y-1 text-[#682722] font-semibold">
+              <p className="font-black">⚠️ سيتم رفع جولة الحالة #{activeReviewModal.item.case_number} إلى الجولة ({activeReviewModal.item.round + 1}).</p>
+              <p>ستعاد للمنفذ الميداني كـ &quot;مهمة معادة للاستكمال&quot; مع تسجيل الملاحظات.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-[#1B1111] mb-1">أسباب الرفض وملاحظات الإعادة للميدان (إلزامي):</label>
+              <textarea
+                rows={3}
+                value={reassignNotes}
+                onChange={(e) => setReassignNotes(e.target.value)}
+                placeholder="وضح للمنفذ سبب عدم كفاية الإجراء وما هو المطلوب منه بالضبط..."
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#D49A3D]/30 resize-none bg-white"
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2 border-t">
+              <button type="button" onClick={() => setActiveReviewModal(null)} className="px-4 py-2 text-xs font-bold text-slate-600">إلغاء</button>
+              <button type="button" onClick={handleReassignSubmit} disabled={!reassignNotes.trim()} className="px-5 py-2.5 rounded-2xl bg-[#682722] text-white text-xs font-black disabled:opacity-50">
+                تأكيد الرفض والإعادة للجولة ({activeReviewModal.item.round + 1})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeReviewModal && activeReviewModal.type === "close" && (
+        <div className="fixed inset-0 z-50 bg-[#1B1111]/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FAF7F4] rounded-[2.5rem] max-w-lg w-full p-6 shadow-2xl space-y-4 border-2 border-[#D49A3D]/40">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h4 className="text-base font-black text-[#682722] flex items-center gap-2">
+                <AlertOctagon className="w-5 h-5 text-rose-600" />
+                <span>إغلاق الحالة نهائياً (Force Close)</span>
+              </h4>
+              <button onClick={() => setActiveReviewModal(null)} className="text-slate-400 font-bold">✕</button>
+            </div>
+            <div className="bg-[#FAF3F3] border border-[#682722]/30 p-3.5 rounded-2xl text-xs space-y-1 text-[#682722] font-semibold">
+              <p className="font-black">🛑 سيتم إنهاء الحالة #{activeReviewModal.item.case_number} وإغلاقها بشكل كامل مع تسجيل التوجيه الإداري.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-[#1B1111] mb-1">ملاحظات أو مبررات الإغلاق النهائي (التغذية الراجعة):</label>
+              <textarea
+                rows={3}
+                value={closeNotes}
+                onChange={(e) => setCloseNotes(e.target.value)}
+                placeholder="التوجيه الإداري الدائم الذي سيظهر للمنفذ في الحالات المغلقة..."
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#D49A3D]/30 resize-none bg-white"
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2 border-t">
+              <button type="button" onClick={() => setActiveReviewModal(null)} className="px-4 py-2 text-xs font-bold text-slate-600">تراجع</button>
+              <button type="button" onClick={handleCloseSubmit} className="px-5 py-2.5 rounded-2xl bg-[#1B1111] text-[#FFC217] text-xs font-black">
+                تأكيد الإغلاق النهائي للحالة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

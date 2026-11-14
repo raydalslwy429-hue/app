@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "code": "capa_inspection_master",
+    "title": "استمارة التفتيش وضبط الجودة الشاملة",
+    "description": "النموذج المتقدم متعدد المراحل لرصد وتقييم سلامة الأغذية والعمليات",
+    "icon": "clipboard",
+    "allowed_roles": "all",
+    "fields_schema": "",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53",
+    "version": 1,
+    "department_code": "all",
+    "allowed_users_json": "all"
+  },
+  {
+    "id": 2,
+    "code": "g",
+    "title": "التقرير الاسبوعي",
+    "description": "hgljhfum",
+    "icon": "clipboard",
+    "allowed_roles": "all",
+    "fields_schema": "",
+    "status": "active",
+    "created_at": "2026-11-14 03:13:53",
+    "version": 1,
+    "department_code": "all",
+    "allowed_users_json": "all"
+  }
+]
